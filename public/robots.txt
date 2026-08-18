@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Disallow: /wp-admin/
+Disallow: /*?busca=
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://yugifbm.com/sitemap.xml
