@@ -1,0 +1,14 @@
+services:
+  fm-codex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      WP_URL: ${WP_URL:-https://wp.yugifbm.com}
+      WP_USER: ${WP_USER:-}
+      WP_APP_PASS: ${WP_APP_PASS:-}
