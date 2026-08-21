@@ -17,6 +17,11 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0
 
 COPY --from=builder --chown=node:node /app/dist/standalone ./
+# Vinext 1.0 beta does not copy its React peer dependencies into the
+# standalone bundle. Keep them explicit so the container is truly isolated.
+COPY --from=builder --chown=node:node /app/node_modules/react ./node_modules/react
+COPY --from=builder --chown=node:node /app/node_modules/react-dom ./node_modules/react-dom
+COPY --from=builder --chown=node:node /app/node_modules/scheduler ./node_modules/scheduler
 
 USER node
 
