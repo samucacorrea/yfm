@@ -167,3 +167,20 @@ test("uses the supplied card artwork across visual card surfaces", async () => {
     "megamorph.png",
   ]) assert.match(html, new RegExp(`/cards/${image.replace(".", "\\.")}`));
 });
+
+test("loads Google Tag Manager globally only when a valid GTM_ID is configured", async () => {
+  const previousGtmId = process.env.GTM_ID;
+  process.env.GTM_ID = "GTM-TEST123";
+
+  try {
+    const response = await render("/guias/");
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, /id="google-tag-manager"/);
+    assert.match(html, /googletagmanager\.com\/gtm\.js/);
+    assert.match(html, /googletagmanager\.com\/ns\.html\?id=GTM-TEST123/);
+  } finally {
+    if (previousGtmId === undefined) delete process.env.GTM_ID;
+    else process.env.GTM_ID = previousGtmId;
+  }
+});

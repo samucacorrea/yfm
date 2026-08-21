@@ -12,3 +12,5 @@ services:
       WP_URL: ${WP_URL:-https://wp.yugifbm.com}
       WP_USER: ${WP_USER:-}
       WP_APP_PASS: ${WP_APP_PASS:-}
+      SITE_URL: ${SITE_URL:-https://yugiohforbiddenmemories.com}
+      GTM_ID: ${GTM_ID:-}
