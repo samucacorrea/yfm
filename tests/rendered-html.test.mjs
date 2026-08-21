@@ -138,6 +138,14 @@ test("renders card detail metadata and answer-first content", async () => {
   assert.match(html, /"@type":"Thing"/);
   assert.match(html, /"@type":"Dataset"/);
   assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"name":"Início","item":"https:\/\/yugifbm\.com\/"/);
+  assert.match(html, /"name":"Cartas","item":"https:\/\/yugifbm\.com\/cartas\/"/);
+  assert.match(html, /"creator":\{"@type":"Organization","name":"FM Codex"/);
+  assert.match(html, /"license":"https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"/);
+  assert.match(html, /"hasPart":\["https:\/\/yugifbm\.com\/cartas\/blue-eyes-white-dragon\/#drop-1"/);
+  assert.doesNotMatch(html, /"@type":"DataFeedItem"/);
+  assert.match(html, /"@id":"https:\/\/yugifbm\.com\/cartas\/blue-eyes-white-dragon\/#faq"/);
+  assert.match(html, /id="drop-1"/);
   assert.ok(html.indexOf('id="precos"') < html.indexOf("seo-guide"));
   assert.ok(html.indexOf("seo-guide") < html.indexOf("faq-exact"));
   assert.match(html, /application\/ld\+json/);
