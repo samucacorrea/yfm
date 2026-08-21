@@ -9,13 +9,13 @@ import { CopyPassword } from "../../components/copy-password";
 
 type PageProps={params:Promise<{slug:string}>};
 
-const siteOrigin=(process.env.SITE_URL||"https://yugifbm.com").replace(/\/$/,"");
+const siteOrigin=(process.env.SITE_URL||"https://yugiohforbiddenmemories.com").replace(/\/$/,"");
 const siteUrl=(path:string)=>`${siteOrigin}${path.startsWith("/")?path:`/${path}`}`;
-const datasetCreator={"@type":"Organization",name:"FM Codex",url:siteOrigin};
+const datasetCreator={"@type":"Organization",name:"Yu-Gi-Oh! Forbidden Memories",url:siteOrigin};
 const datasetLicense="https://creativecommons.org/licenses/by/4.0/";
 
 export function generateStaticParams(){return localCards.map(card=>({slug:card.slug}))}
-export async function generateMetadata({params}:PageProps):Promise<Metadata>{const card=await getCard((await params).slug);if(!card)return{title:"Carta não encontrada | FM Codex"};const title=`${card.name}: drops, password e stats | FM Codex`;const description=`${card.name} (#${String(card.id).padStart(3,"0")}): password ${card.password}, ${card.atk} ATK, ${card.def} DEF e onde conseguir em Forbidden Memories.`;const image=getCardImage(card.slug);const requestHeaders=await headers();const host=requestHeaders.get("x-forwarded-host")||requestHeaders.get("host")||"localhost:3000";const protocol=requestHeaders.get("x-forwarded-proto")||(host.startsWith("localhost")?"http":"https");const socialImage=image?`${protocol}://${host}${image.src}`:undefined;return{title,description,openGraph:{title,description,images:socialImage?[{url:socialImage,width:image?.width,height:image?.height,alt:`Carta ${card.name}`}]:[]},twitter:{card:socialImage?"summary_large_image":"summary",title,description,images:socialImage?[socialImage]:[]}}}
+export async function generateMetadata({params}:PageProps):Promise<Metadata>{const card=await getCard((await params).slug);if(!card)return{title:"Carta não encontrada | Yu-Gi-Oh! Forbidden Memories"};const title=`${card.name}: drops, password e stats | Yu-Gi-Oh! Forbidden Memories`;const description=`${card.name} (#${String(card.id).padStart(3,"0")}): password ${card.password}, ${card.atk} ATK, ${card.def} DEF e onde conseguir em Forbidden Memories.`;const image=getCardImage(card.slug);const requestHeaders=await headers();const host=requestHeaders.get("x-forwarded-host")||requestHeaders.get("host")||"localhost:3000";const protocol=requestHeaders.get("x-forwarded-proto")||(host.startsWith("localhost")?"http":"https");const socialImage=image?`${protocol}://${host}${image.src}`:undefined;return{title,description,openGraph:{title,description,siteName:"Yu-Gi-Oh! Forbidden Memories",images:socialImage?[{url:socialImage,width:image?.width,height:image?.height,alt:`Carta ${card.name}`}]:[]},twitter:{card:socialImage?"summary_large_image":"summary",title,description,images:socialImage?[socialImage]:[]}}}
 
 export default async function CardPage({params}:PageProps){
   const card=await getCard((await params).slug);if(!card)return <main className="not-found"><p>404</p><h1>Carta não encontrada</h1><a href="/cartas/">Voltar para as cartas</a></main>;
@@ -49,7 +49,7 @@ export default async function CardPage({params}:PageProps){
 
       <section id="curiosidades" className="faq-exact"><div className="sec-h"><h2>Perguntas <span>frequentes</span></h2></div><div className="faq-exact-list">{faq.map((item,i)=><details open={i===0} key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div></section>
     </main>
-    <footer className="exact-footer"><div className="exact-wrap"><span>FM Codex — banco de dados de Forbidden Memories, em português.</span><span><b>▲</b> O site não hospeda arquivos. Apenas indexamos links externos.</span></div></footer>
+    <footer className="exact-footer"><div className="exact-wrap"><span>Yu-Gi-Oh! Forbidden Memories — banco de dados e guias em português.</span><span><b>▲</b> O site não hospeda arquivos. Apenas indexamos links externos.</span></div></footer>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd)}}/>
   </div>
 }

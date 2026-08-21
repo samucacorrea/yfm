@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const values = await params;
   const duelist = await getDuelist(values.slug);
   const pool = valid.includes(values.pool as PoolKey) ? values.pool as PoolKey : undefined;
-  if (!duelist || !pool) return { title: "Bolsa não encontrada | FM Codex" };
-  const title = `Drops ${labels[pool]} de ${duelist.name} | FM Codex`;
+  if (!duelist || !pool) return { title: "Bolsa não encontrada | Yu-Gi-Oh! Forbidden Memories" };
+  const title = `Drops ${labels[pool]} de ${duelist.name} | Yu-Gi-Oh! Forbidden Memories`;
   const description = `${duelist.name}: cartas, tipos e probabilidades da bolsa ${labels[pool]} em Forbidden Memories.`;
   const images = duelist.heroImage ? [{ url: duelist.heroImage, alt: duelist.name }] : [];
   return { title, description, openGraph: { title, description, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };

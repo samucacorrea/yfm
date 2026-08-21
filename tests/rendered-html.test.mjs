@@ -12,12 +12,12 @@ async function render(path = "/") {
   );
 }
 
-test("renders the FM Codex home with its primary discovery paths", async () => {
+test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery paths", async () => {
   const response = await render("/");
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>FM Codex — Cartas, Drops e Guias de Forbidden Memories<\/title>/i);
+  assert.match(html, /<title>Yu-Gi-Oh! Forbidden Memories — Cartas, Drops e Guias<\/title>/i);
   assert.match(html, /Encontre qualquer/i);
   assert.match(html, /carta, drop ou password/i);
   assert.match(html, /action="\/cartas\/"/);
@@ -121,7 +121,7 @@ test("renders card detail metadata and answer-first content", async () => {
   const response = await render("/cartas/blue-eyes-white-dragon/");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<title>Blue-Eyes White Dragon: drops, password e stats \| FM Codex<\/title>/i);
+  assert.match(html, /<title>Blue-Eyes White Dragon: drops, password e stats \| Yu-Gi-Oh! Forbidden Memories<\/title>/i);
   assert.match(html, /Resposta rápida/i);
   assert.match(html, /89631139/);
   assert.match(html, /Quem <span>dropa/);
@@ -138,13 +138,13 @@ test("renders card detail metadata and answer-first content", async () => {
   assert.match(html, /"@type":"Thing"/);
   assert.match(html, /"@type":"Dataset"/);
   assert.match(html, /"@type":"FAQPage"/);
-  assert.match(html, /"name":"Início","item":"https:\/\/yugifbm\.com\/"/);
-  assert.match(html, /"name":"Cartas","item":"https:\/\/yugifbm\.com\/cartas\/"/);
-  assert.match(html, /"creator":\{"@type":"Organization","name":"FM Codex"/);
+  assert.match(html, /"name":"Início","item":"https:\/\/yugiohforbiddenmemories\.com\/"/);
+  assert.match(html, /"name":"Cartas","item":"https:\/\/yugiohforbiddenmemories\.com\/cartas\/"/);
+  assert.match(html, /"creator":\{"@type":"Organization","name":"Yu-Gi-Oh! Forbidden Memories"/);
   assert.match(html, /"license":"https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"/);
-  assert.match(html, /"hasPart":\["https:\/\/yugifbm\.com\/cartas\/blue-eyes-white-dragon\/#drop-1"/);
+  assert.match(html, /"hasPart":\["https:\/\/yugiohforbiddenmemories\.com\/cartas\/blue-eyes-white-dragon\/#drop-1"/);
   assert.doesNotMatch(html, /"@type":"DataFeedItem"/);
-  assert.match(html, /"@id":"https:\/\/yugifbm\.com\/cartas\/blue-eyes-white-dragon\/#faq"/);
+  assert.match(html, /"@id":"https:\/\/yugiohforbiddenmemories\.com\/cartas\/blue-eyes-white-dragon\/#faq"/);
   assert.match(html, /id="drop-1"/);
   assert.ok(html.indexOf('id="precos"') < html.indexOf("seo-guide"));
   assert.ok(html.indexOf("seo-guide") < html.indexOf("faq-exact"));

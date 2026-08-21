@@ -6,8 +6,8 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const mod = await getMod((await params).slug);
-  if (!mod) return { title: "MOD não encontrado | FM Codex" };
-  const title = `${mod.name} | FM Codex`;
+  if (!mod) return { title: "MOD não encontrado | Yu-Gi-Oh! Forbidden Memories" };
+  const title = `${mod.name} | Yu-Gi-Oh! Forbidden Memories`;
   const images = mod.image ? [{ url: mod.image, alt: mod.name }] : [];
   return { title, description: mod.summary, openGraph: { title, description: mod.summary, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description: mod.summary, images: images.map((image) => image.url) } };
 }

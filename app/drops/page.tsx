@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getDuelists } from "../../lib/data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Drops de Forbidden Memories por duelista | FM Codex", description: "Consulte personagens, pools S/A POW, S/A TEC e B-C-D e descubra quais cartas cada duelista pode dropar." };
+export const metadata: Metadata = { title: "Drops por duelista | Yu-Gi-Oh! Forbidden Memories", description: "Consulte personagens, pools S/A POW, S/A TEC e B-C-D e descubra quais cartas cada duelista pode dropar." };
 export default async function DropsPage() {
   const duelists = await getDuelists();
   const schema = { "@context": "https://schema.org", "@type": "CollectionPage", name: "Drops de Yu-Gi-Oh! Forbidden Memories", mainEntity: { "@type": "ItemList", itemListElement: duelists.map((duelist, index) => ({ "@type": "ListItem", position: index + 1, name: duelist.name, url: `/drops/${duelist.slug}/` })) } };

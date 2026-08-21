@@ -2,6 +2,7 @@ import { getCardImage } from "../lib/card-images";
 import { getPublishedPosts } from "../lib/wordpress";
 import { getCards, getDuelists } from "../lib/data";
 import { CardVisual } from "./components/card-visual";
+import { SchemaScript } from "./components/portal-components";
 import { SiteFooter } from "./components/site-footer";
 import { SiteHeader } from "./components/site-header";
 
@@ -27,6 +28,9 @@ const explore = [
   { icon:"☆", title:"Cheats & Estrelas infinitas", text:"Truques, códigos e muito mais.", href:"/guias/" },
 ];
 export default async function Home() {
+  const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
+  const organizationId = `${siteOrigin}/#organization`;
+  const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${siteOrigin}/#website`, url: `${siteOrigin}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${siteOrigin}/`, logo: { "@type": "ImageObject", url: `${siteOrigin}/logo.png` } }] };
   const [wp, allCards, allDuelists] = await Promise.all([getPublishedPosts(), getCards(), getDuelists()]);
   const posts = wp;
   const cardsBySlug = new Map(allCards.map((card) => [card.slug, card]));
@@ -59,6 +63,7 @@ export default async function Home() {
     <section className="template-ad-section"><div className="shell"><aside className="template-ad"><div><b>Espaço publicitário · Fase 2 (opcional)</b><small>Slot reservado para AdSense — ativado quando a conta for aprovada.</small></div></aside></div></section>
 
     <section className="template-section"><div className="shell"><div className="template-section-head"><h2>Do <span>blog</span></h2><a href="/blog/">Ver todos os posts →</a></div><div className="template-posts">{posts.slice(0,3).map((post,index)=><a className="template-post" href={`/blog/${post.slug}/`} key={post.slug}><div className={`post-cover cover-${index+1}`}>{post.featuredImage?<img src={post.featuredImage} alt={post.featuredImageAlt||post.title.rendered} loading="lazy"/>:<b>{["𓂀","☥","✦"][index]}</b>}</div><div><h3>{post.title.rendered}</h3><span>{post.plainExcerpt}</span></div></a>)}</div></div></section>
+    <SchemaScript data={websiteSchema} />
     <SiteFooter />
   </main>;
 }

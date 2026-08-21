@@ -1,4 +1,4 @@
-# FM Codex
+# Yu-Gi-Oh! Forbidden Memories
 
 Portal de cartas, drops, personagens, passwords, mods, guias e artigos de
 Yu-Gi-Oh! Forbidden Memories. O conteúdo é consumido da API REST do WordPress.
@@ -24,7 +24,7 @@ Password no repositório.
 WP_URL=https://wp.yugifbm.com
 WP_USER=seu_usuario_wordpress
 WP_APP_PASS=sua_application_password
-SITE_URL=https://yugifbm.com
+SITE_URL=https://yugiohforbiddenmemories.com
 ```
 
 As rotas públicas do WordPress continuam disponíveis sem autenticação. As

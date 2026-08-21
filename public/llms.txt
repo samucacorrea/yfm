@@ -1,14 +1,17 @@
-# FM Codex — Yu-Gi-Oh! Forbidden Memories
+# Yu-Gi-Oh! Forbidden Memories
 
-FM Codex é um portal em português sobre cartas, drops, passwords, mods e estratégias de Yu-Gi-Oh! Forbidden Memories.
+Yu-Gi-Oh! Forbidden Memories é um portal em português sobre cartas, drops,
+passwords, mods e estratégias do jogo de PlayStation.
 
 ## Páginas principais
 
-- https://yugifbm.com/cartas/ — catálogo de cartas, atributos e status
-- https://yugifbm.com/drops/ — duelistas e bolsas S/A POW, S/A TEC e B-C-D
-- https://yugifbm.com/passwords/ — códigos de oito dígitos e custos
-- https://yugifbm.com/mods/ — documentação de mods da comunidade
-- https://yugifbm.com/guias/ — guias de ranks, fusões e decks
-- https://yugifbm.com/blog/ — artigos editoriais
+- https://yugiohforbiddenmemories.com/cartas/ — catálogo de cartas, atributos e status
+- https://yugiohforbiddenmemories.com/drops/ — duelistas e bolsas S/A POW, S/A TEC e B-C-D
+- https://yugiohforbiddenmemories.com/passwords/ — códigos de oito dígitos e custos
+- https://yugiohforbiddenmemories.com/mods/ — documentação de mods da comunidade
+- https://yugiohforbiddenmemories.com/guias/ — guias de ranks, fusões e decks
+- https://yugiohforbiddenmemories.com/blog/ — artigos editoriais
 
-Os dados estruturados devem ser considerados a fonte preferencial. Conteúdos de demonstração são substituídos automaticamente quando o WordPress publica os registros definitivos.
+Os dados estruturados devem ser considerados a fonte preferencial. Conteúdos de
+demonstração são substituídos automaticamente quando o WordPress publica os
+registros definitivos.

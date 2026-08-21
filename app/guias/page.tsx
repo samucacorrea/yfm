@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getPublishedGuides } from "../../lib/wordpress";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Guias de Forbidden Memories | FM Codex", description: "Guias publicados no WordPress sobre Yu-Gi-Oh! Forbidden Memories." };
+export const metadata: Metadata = { title: "Guias | Yu-Gi-Oh! Forbidden Memories", description: "Guias publicados no WordPress sobre Yu-Gi-Oh! Forbidden Memories." };
 
 export default async function GuidesPage() {
   const guides = await getPublishedGuides();

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getMods } from "../../lib/data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Mods de Yu-Gi-Oh! Forbidden Memories | FM Codex", description: "MODs publicados no WordPress para Yu-Gi-Oh! Forbidden Memories." };
+export const metadata: Metadata = { title: "Mods | Yu-Gi-Oh! Forbidden Memories", description: "MODs publicados no WordPress para Yu-Gi-Oh! Forbidden Memories." };
 
 export default async function ModsPage() {
   const mods = await getMods();

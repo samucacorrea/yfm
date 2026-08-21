@@ -3,7 +3,7 @@ import { getCards } from "../../lib/data";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Passwords de Forbidden Memories: lista de códigos | FM Codex", description: "Tabela de passwords das cartas com ID, tipo, atributo, ATK, DEF e custo em estrelas." };
+export const metadata: Metadata = { title: "Passwords: lista de códigos | Yu-Gi-Oh! Forbidden Memories", description: "Tabela de passwords das cartas com ID, tipo, atributo, ATK, DEF e custo em estrelas." };
 
 export default async function PasswordsPage({ searchParams }: { searchParams: Promise<{ busca?: string }> }) {
   const cards = await getCards();

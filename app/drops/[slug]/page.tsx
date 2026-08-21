@@ -10,8 +10,8 @@ export function generateStaticParams() { return localDuelists.map((duelist) => (
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const duelist = await getDuelist((await params).slug);
-  if (!duelist) return { title: "Duelista não encontrado | FM Codex" };
-  const title = `Drops do ${duelist.name}: cartas, taxas e ranks | FM Codex`;
+  if (!duelist) return { title: "Duelista não encontrado | Yu-Gi-Oh! Forbidden Memories" };
+  const title = `Drops do ${duelist.name}: cartas, taxas e ranks | Yu-Gi-Oh! Forbidden Memories`;
   const description = duelist.answer || duelist.about || `Drops de ${duelist.name} em Yu-Gi-Oh! Forbidden Memories.`;
   const images = duelist.heroImage ? [{ url: duelist.heroImage, alt: duelist.name }] : [];
   return { title, description, openGraph: { title, description, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };
