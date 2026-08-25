@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../portal.css";
 import { getCards } from "../../lib/data";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";

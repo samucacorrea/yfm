@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../portal.css";
 import { getPublishedGuides } from "../../lib/wordpress";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 

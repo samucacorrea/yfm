@@ -30,7 +30,7 @@ const explore = [
 export default async function Home() {
   const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
   const organizationId = `${siteOrigin}/#organization`;
-  const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${siteOrigin}/#website`, url: `${siteOrigin}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${siteOrigin}/`, logo: { "@type": "ImageObject", url: `${siteOrigin}/logo.png` } }] };
+  const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${siteOrigin}/#website`, url: `${siteOrigin}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${siteOrigin}/`, logo: { "@type": "ImageObject", url: `${siteOrigin}/logo.webp` } }] };
   const [wp, allCards, allDuelists] = await Promise.all([getPublishedPosts(3), getCards(), getDuelists()]);
   const posts = wp;
   const cardsBySlug = new Map(allCards.map((card) => [card.slug, card]));

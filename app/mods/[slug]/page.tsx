@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../../portal.css";
 import { getMod } from "../../../lib/data";
 import { PortalFaq, PortalHeading, PortalPage, SchemaScript } from "../../components/portal-components";
 

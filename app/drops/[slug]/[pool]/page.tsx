@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../../../portal.css";
 import { getCards, getDuelist } from "../../../../lib/data";
 import { duelists as localDuelists, type PoolKey } from "../../../../lib/portal-content";
 import { DuelistDetail } from "../../../components/duelist-detail";

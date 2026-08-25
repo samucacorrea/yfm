@@ -12,7 +12,12 @@ function getGoogleTagManagerId() {
 function googleTagManagerBootstrap(containerId: string) {
   return `
     window.dataLayer = window.dataLayer || [];
+    let gtmLoaded = false;
+
     const loadGtm = () => {
+      if (gtmLoaded) return;
+      gtmLoaded = true;
+
       window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
 
       const gtmScript = document.createElement("script");
@@ -52,11 +57,16 @@ function googleTagManagerBootstrap(containerId: string) {
     window.addEventListener("popstate", schedulePageView);
     schedulePageView();
 
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadGtm, { timeout: 2500 });
-    } else {
-      window.addEventListener("load", () => window.setTimeout(loadGtm, 1), { once: true });
-    }
+    const startGtm = () => {
+      loadGtm();
+      window.removeEventListener("pointerdown", startGtm);
+      window.removeEventListener("keydown", startGtm);
+      window.removeEventListener("touchstart", startGtm);
+    };
+
+    window.addEventListener("pointerdown", startGtm, { once: true, passive: true });
+    window.addEventListener("keydown", startGtm, { once: true });
+    window.addEventListener("touchstart", startGtm, { once: true, passive: true });
   `;
 }
 

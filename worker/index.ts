@@ -19,6 +19,22 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+const LONG_CACHE_EXTENSIONS = /\.(?:avif|css|gif|ico|jpeg|jpg|js|mjs|png|svg|webp|woff2?)$/i;
+
+function withStaticAssetCache(url: URL, response: Response) {
+  if (!response.ok) return response;
+  if (!LONG_CACHE_EXTENSIONS.test(url.pathname)) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -40,7 +56,8 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    return withStaticAssetCache(url, response);
   },
 };
 

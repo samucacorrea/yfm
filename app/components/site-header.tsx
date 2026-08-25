@@ -3,7 +3,7 @@ export function SiteHeader({ solid = false }: { solid?: boolean }) {
     <header className={`site-header${solid ? " header-solid" : ""}`}>
       <div className="nav-shell">
         <a className="brand" href="/" aria-label="Yu-Gi-Oh! Forbidden Memories — início">
-          <img className="brand-logo" src="/logo.png" alt="Yu-Gi-Oh! Forbidden Memories" />
+          <img className="brand-logo" src="/logo.webp" alt="Yu-Gi-Oh! Forbidden Memories" width="346" height="112" decoding="async" />
         </a>
         <nav className="desktop-nav" aria-label="Navegação principal">
           <a href="/cartas/">Cartas</a><a href="/drops/">Drops</a><a href="/mods/">Mods</a>
