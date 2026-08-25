@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../discovery.css";
 import { getCards } from "../../lib/data";
 import { CardVisual } from "../components/card-visual";
 import { SiteFooter } from "../components/site-footer";
