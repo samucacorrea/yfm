@@ -31,7 +31,7 @@ export default async function Home() {
   const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
   const organizationId = `${siteOrigin}/#organization`;
   const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${siteOrigin}/#website`, url: `${siteOrigin}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${siteOrigin}/`, logo: { "@type": "ImageObject", url: `${siteOrigin}/logo.png` } }] };
-  const [wp, allCards, allDuelists] = await Promise.all([getPublishedPosts(), getCards(), getDuelists()]);
+  const [wp, allCards, allDuelists] = await Promise.all([getPublishedPosts(3), getCards(), getDuelists()]);
   const posts = wp;
   const cardsBySlug = new Map(allCards.map((card) => [card.slug, card]));
   const duelistsBySlug = new Map(allDuelists.map((duelist) => [duelist.slug, duelist]));
@@ -41,6 +41,17 @@ export default async function Home() {
   });
   return <main className="template-home"><SiteHeader />
     <section className="template-hero">
+      <img
+        className="template-hero-bg"
+        src="/bg.webp"
+        alt=""
+        width="1717"
+        height="916"
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        aria-hidden="true"
+      />
       <div className="field-badge"><span>FIELD</span><b>WASTELAND</b></div>
       <div className="duel-hud"><div><span>COM · LP</span><b>8000</b></div><div><span>CARTAS</span><b>35</b></div><div className="you"><span>YOU · LP</span><b>4033</b></div><div><span>CARTAS</span><b>38</b></div></div>
       <div className="template-hero-content">

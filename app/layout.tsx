@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { GoogleTagManagerPageViews } from "./components/google-tag-manager";
 import "./globals.css";
 
 const GTM_ID_PATTERN = /^GTM-[A-Z0-9]+$/i;
@@ -11,7 +10,54 @@ function getGoogleTagManagerId() {
 }
 
 function googleTagManagerBootstrap(containerId: string) {
-  return `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${containerId}');`;
+  return `
+    window.dataLayer = window.dataLayer || [];
+    const loadGtm = () => {
+      window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+
+      const gtmScript = document.createElement("script");
+      gtmScript.async = true;
+      gtmScript.src = "https://www.googletagmanager.com/gtm.js?id=${containerId}";
+      document.head.appendChild(gtmScript);
+    };
+
+    let lastLocation = "";
+    const sendPageView = () => {
+      const pageLocation = window.location.href;
+      if (pageLocation === lastLocation) return;
+
+      lastLocation = pageLocation;
+      window.dataLayer.push({
+        event: "page_view",
+        page_location: pageLocation,
+        page_path: window.location.pathname + window.location.search,
+        page_title: document.title,
+      });
+    };
+
+    const schedulePageView = () => window.requestAnimationFrame(sendPageView);
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function (...args) {
+      originalPushState.apply(this, args);
+      schedulePageView();
+    };
+
+    history.replaceState = function (...args) {
+      originalReplaceState.apply(this, args);
+      schedulePageView();
+    };
+
+    window.addEventListener("popstate", schedulePageView);
+    schedulePageView();
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(loadGtm, { timeout: 2500 });
+    } else {
+      window.addEventListener("load", () => window.setTimeout(loadGtm, 1), { once: true });
+    }
+  `;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,7 +103,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 title="Google Tag Manager"
               />
             </noscript>
-            <GoogleTagManagerPageViews />
           </>
         ) : null}
         {children}

@@ -49,13 +49,14 @@ function normalizePost(post: WordPressPostRaw): WordPressPost {
 
 function isGuide(post: WordPressPost) { return post.categorySlug === "guia" || post.categorySlug === "guias"; }
 
-async function publishedPosts() {
-  const posts = await wordpressRequest<WordPressPostRaw[]>("wp/v2/posts?per_page=100&status=publish&orderby=date&order=desc&_embed=1");
+async function publishedPosts(limit = 100) {
+  const perPage = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const posts = await wordpressRequest<WordPressPostRaw[]>(`wp/v2/posts?per_page=${perPage}&status=publish&orderby=date&order=desc&_embed=1`);
   return posts.filter((post) => post.slug !== "ola-mundo").map(normalizePost);
 }
 
-export async function getPublishedPosts(): Promise<WordPressPost[]> {
-  try { return (await publishedPosts()).filter((post) => !isGuide(post)); }
+export async function getPublishedPosts(limit?: number): Promise<WordPressPost[]> {
+  try { return (await publishedPosts(limit)).filter((post) => !isGuide(post)); }
   catch { return []; }
 }
 
