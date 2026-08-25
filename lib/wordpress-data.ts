@@ -222,6 +222,9 @@ type WordPressModRaw = WordPressEntitySummary & {
 function cleanHtml(value = "") { return decodeWordPressText(value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()); }
 function metaText(meta: Record<string, unknown> | undefined, keys: string[]) { for (const key of keys) { const value = meta?.[key]; if (typeof value === "string" && value.trim()) return decodeWordPressText(value.trim()); } return ""; }
 function metaList(meta: Record<string, unknown> | undefined, keys: string[]) { for (const key of keys) { const value = meta?.[key]; if (Array.isArray(value)) return value.map(String).filter(Boolean); if (typeof value === "string" && value.trim()) { try { const parsed = JSON.parse(value); if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean); } catch { return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean); } } } return []; }
+function mediaUrl(media: WordPressModRaw["_embedded"] extends infer _T ? EmbeddedMedia | undefined : never) {
+  return media?.media_details?.sizes?.large?.source_url || media?.media_details?.sizes?.medium_large?.source_url || media?.source_url || "";
+}
 
 function mapMod(record: WordPressModRaw): ModRecord {
   const name = decodeWordPressText(record.title.rendered);
@@ -234,16 +237,16 @@ function mapMod(record: WordPressModRaw): ModRecord {
   return {
     slug: record.slug,
     name,
-    version: metaText(meta, ["versao", "version", "fm_versao"]),
-    author: metaText(meta, ["autor", "author", "fm_autor"]) || record._embedded?.author?.[0]?.name || "",
+    version: metaText(meta, ["versao", "version", "fm_versao", "mod_version", "fm_mod_version"]),
+    author: metaText(meta, ["autor", "author", "fm_autor", "mod_author", "fm_mod_author"]) || record._embedded?.author?.[0]?.name || "",
     tag: decodeWordPressText(tag),
-    multiplier: metaText(meta, ["multiplicador", "multiplier", "drop_multiplier"]),
+    multiplier: metaText(meta, ["multiplicador", "multiplier", "drop_multiplier", "drop_x", "fm_multiplier"]),
     summary: cleanHtml(record.excerpt?.rendered) || cleanHtml(record.content?.rendered).slice(0, 240),
     content: record.content?.rendered || "",
-    image: media?.media_details?.sizes?.large?.source_url || media?.source_url,
-    sourceUrl: metaText(meta, ["url_oficial", "source_url", "link_externo"]),
-    features: metaList(meta, ["recursos", "features"]),
-    changelog: metaList(meta, ["changelog", "alteracoes"]),
+    image: mediaUrl(media),
+    sourceUrl: metaText(meta, ["url_oficial", "source_url", "link_externo", "download_url", "url_download", "link_download", "link_do_mod", "download_link", "fm_download_url"]),
+    features: metaList(meta, ["recursos", "features", "feature_list", "mod_features"]),
+    changelog: metaList(meta, ["changelog", "alteracoes", "change_log", "updates"]),
     faq,
   };
 }
