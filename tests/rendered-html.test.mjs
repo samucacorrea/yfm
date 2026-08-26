@@ -128,6 +128,34 @@ test("renders character drop search and card type filter", async () => {
   assert.match(html, /class="drop-filter-panel fm-inline-drop-filter"/);
 });
 
+test("renders the visual password catalog with answer-first content and complete schemas", async () => {
+  const response = await render("/passwords/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /class="[^"]*password-answer-grid/);
+  assert.match(html, /class="password-visual-grid"/);
+  assert.match(html, /class="password-visual-card"/);
+  assert.match(html, /Nome, ID, password, tipo ou atributo/);
+  assert.match(html, /Guia de passwords/);
+  assert.match(html, /class="password-faq-list"/);
+  assert.match(html, /"@type":"CollectionPage"/);
+  assert.match(html, /"@type":"Dataset"/);
+  assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"creator":\{"@type":"Organization","name":"Yu-Gi-Oh! Forbidden Memories"/);
+  assert.match(html, /"license":"https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"/);
+});
+
+test("renders visual type-specific password pages with a canonical URL", async () => {
+  const response = await render("/passwords/dragon/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /class="password-visual-grid"/);
+  assert.match(html, /class="password-metrics"/);
+  assert.match(html, /rel="canonical" href="https:\/\/yugiohforbiddenmemories\.com\/passwords\/dragao\/"/);
+  assert.match(html, /"@type":"Dataset"/);
+  assert.match(html, /"@type":"FAQPage"/);
+});
+
 test("renders card detail metadata and answer-first content", async () => {
   const response = await render("/cartas/blue-eyes-white-dragon/");
   assert.equal(response.status, 200);
