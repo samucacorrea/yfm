@@ -1,32 +1,133 @@
 import type { Metadata } from "next";
-import "../../portal.css";
+import "../../exact-card.css";
+import "../mods.css";
 import { getMod } from "../../../lib/data";
-import { PortalFaq, PortalHeading, PortalPage, SchemaScript } from "../../components/portal-components";
+import { SiteFooter } from "../../components/site-footer";
+import { SiteHeader } from "../../components/site-header";
+import { SchemaScript } from "../../components/portal-components";
 
 type Props = { params: Promise<{ slug: string }> };
 
+const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
+const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const plainText = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+const multiplierLabel = (value: string) => value && /^\d+(?:[.,]\d+)?$/.test(value) ? `${value}x` : value;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const mod = await getMod((await params).slug);
-  if (!mod) return { title: "MOD não encontrado | Yu-Gi-Oh! Forbidden Memories" };
+  if (!mod) return { title: "Mod não encontrado | Yu-Gi-Oh! Forbidden Memories" };
   const title = `${mod.name} | Yu-Gi-Oh! Forbidden Memories`;
+  const description = mod.summary || plainText(mod.content).slice(0, 160);
   const images = mod.image ? [{ url: mod.image, alt: mod.name }] : [];
-  return { title, description: mod.summary, openGraph: { title, description: mod.summary, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description: mod.summary, images: images.map((image) => image.url) } };
+  return {
+    title,
+    description,
+    openGraph: { title, description, siteName: "Yu-Gi-Oh! Forbidden Memories", images },
+    twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) },
+  };
 }
 
 export default async function ModPage({ params }: Props) {
   const mod = await getMod((await params).slug);
-  if (!mod) return <PortalPage eyebrow="ERRO 404" title="MOD" accent="não encontrado" lead=""><section className="portal-section"><div className="shell"><a className="portal-button" href="/mods/">Ver MODs</a></div></section></PortalPage>;
-  const schema = { "@context": "https://schema.org", "@graph": [{ "@type": "SoftwareApplication", name: mod.name, softwareVersion: mod.version || undefined, author: mod.author ? { "@type": "Person", name: mod.author } : undefined, description: mod.summary, image: mod.image, url: `/mods/${mod.slug}/` }, ...(mod.faq.length ? [{ "@type": "FAQPage", mainEntity: mod.faq.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })) }] : [])] };
-  const hasArticleContent = Boolean(mod.content?.replace(/<[^>]*>/g, "").trim());
-  const highlights = [
+  if (!mod) return <div className="exact-card-page exact-mod-page"><SiteHeader solid /><main className="exact-wrap mod-not-found"><p>404</p><h1>Mod não encontrado</h1><a className="mod-primary-button" href="/mods/">Ver todos os mods</a></main><SiteFooter /></div>;
+
+  const modUrl = absoluteUrl(`/mods/${mod.slug}/`);
+  const description = mod.summary || plainText(mod.content).slice(0, 240);
+  const tags = mod.tags?.length ? mod.tags : (mod.tag ? [mod.tag] : []);
+  const contentExists = Boolean(plainText(mod.content));
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Início", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Mods", item: absoluteUrl("/mods/") },
+          { "@type": "ListItem", position: 3, name: mod.name, item: modUrl },
+        ],
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${modUrl}#mod`,
+        name: mod.name,
+        softwareVersion: mod.version || undefined,
+        author: mod.author ? { "@type": "Organization", name: mod.author } : undefined,
+        description: description || undefined,
+        image: mod.image,
+        url: modUrl,
+        downloadUrl: mod.sourceUrl || undefined,
+        keywords: tags.length ? tags.join(", ") : undefined,
+        isPartOf: { "@type": "VideoGame", name: "Yu-Gi-Oh! Forbidden Memories" },
+      },
+      ...(mod.faq.length ? [{
+        "@type": "FAQPage",
+        "@id": `${modUrl}#faq`,
+        mainEntity: mod.faq.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })),
+      }] : []),
+    ],
+  };
+
+  const facts = [
     mod.version ? { label: "Versão", value: mod.version } : null,
-    mod.author ? { label: "Autor", value: mod.author } : null,
-    mod.multiplier ? { label: "Multiplicador", value: mod.multiplier } : null,
-    mod.tag ? { label: "Categoria", value: mod.tag } : null,
+    mod.multiplier ? { label: "Multiplicador", value: multiplierLabel(mod.multiplier) } : null,
+    mod.baseVersion ? { label: "Versão-base", value: mod.baseVersion } : null,
+    mod.tag ? { label: "Tipo de mod", value: mod.tag } : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
 
-  return <PortalPage eyebrow={[mod.tag, mod.version && `VERSÃO ${mod.version}`].filter(Boolean).join(" · ") || "MOD"} title={mod.name} accent="" lead={mod.summary}>
-    <article className="mod-wp-article"><div className="shell article-layout"><aside>{mod.image && <img src={mod.image} alt={mod.name}/>} {mod.author && <p><span>Autor</span><b>{mod.author}</b></p>}{mod.version && <p><span>Versão</span><b>{mod.version}</b></p>}{mod.multiplier && <p><span>Multiplicador</span><b>{mod.multiplier}</b></p>}{mod.sourceUrl ? <a className="portal-button" href={mod.sourceUrl} rel="noopener noreferrer">Baixar / página oficial</a> : <p><span>Link oficial</span><b>Não informado</b></p>}</aside><div className="article-body"><section><PortalHeading title="Visão geral" accent="do mod"/><div className="wp-content"><p>{mod.summary || "Este mod foi catalogado, mas ainda não possui uma descrição detalhada cadastrada."}</p></div></section>{highlights.length > 0 && <section><PortalHeading title="Informações" accent="rápidas"/><ul className="mod-data-list">{highlights.map((item) => <li key={item.label}><strong>{item.label}:</strong> {item.value}</li>)}</ul></section>}{hasArticleContent && <section><PortalHeading title="Descrição" accent="completa"/><div className="wp-content" dangerouslySetInnerHTML={{ __html: mod.content || "" }}/></section>}{mod.features.length > 0 && <section><PortalHeading title="Principais" accent="recursos"/><ul className="mod-data-list">{mod.features.map((feature) => <li key={feature}>{feature}</li>)}</ul></section>}{mod.sourceUrl && <section><PortalHeading title="Download e" accent="links"/><div className="wp-content"><p>Use sempre a fonte oficial do autor para baixar ou acompanhar atualizações deste mod.</p><p><a className="portal-button" href={mod.sourceUrl} rel="noopener noreferrer">Abrir link oficial</a></p></div></section>}{mod.changelog.length > 0 && <section><PortalHeading title="Histórico de" accent="alterações"/><ol className="changelog">{mod.changelog.map((item) => <li key={item}>{item}</li>)}</ol></section>}{mod.faq.length > 0 && <section><PortalHeading title="Perguntas" accent="frequentes"/><PortalFaq items={mod.faq}/></section>}</div></div></article>
-    <SchemaScript data={schema}/>
-  </PortalPage>;
+  return (
+    <div className="exact-card-page exact-mod-page">
+      <SiteHeader solid />
+      <main className="exact-wrap">
+        <div className="topbar">
+          <nav className="crumb" aria-label="Navegação estrutural">
+            <a href="/">Início</a><span className="sep">›</span><a href="/mods/">Mods</a><span className="sep">›</span><span className="cur">{mod.name}</span>
+          </nav>
+          <a className="nbtn" href="/mods/">‹ Todos os mods</a>
+        </div>
+
+        <article className="modtop" id="visao-geral">
+          <div className="mod-detail-art">
+            {mod.image ? <img src={mod.image} alt={mod.name} /> : <span>MOD</span>}
+          </div>
+          <div className="mod-detail-main">
+            <small>MOD PARA YU-GI-OH! FORBIDDEN MEMORIES</small>
+            <h1>{mod.name}</h1>
+            {tags.length ? <div className="badges">{tags.map((tag) => <span className="badge-c" key={tag}><span className="dot">✦</span>{tag}</span>)}</div> : null}
+            {mod.summary && <p className="desc">{mod.summary}</p>}
+            {facts.length ? <div className="mod-statboxes">{facts.map((fact) => <div className="mod-stat" key={fact.label}><span>{fact.label}</span><b>{fact.value}</b></div>)}</div> : null}
+          </div>
+          <aside className="cardaside mod-download-card">
+            {mod.id ? <div className="id"><b>#{mod.id}</b><span>ID do mod no catálogo</span></div> : null}
+            {mod.author && <><div className="aside-h">Autor</div><p>{mod.author}</p></>}
+            {mod.editedFiles?.length ? <><div className="aside-h">Arquivos editados</div><ul>{mod.editedFiles.map((file) => <li key={file}>{file}</li>)}</ul></> : null}
+            {mod.sourceUrl && <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer">Acessar download ↗</a>}
+          </aside>
+        </article>
+
+        <nav className="tabs" aria-label="Seções do mod">
+          <a className="tab active" href="#visao-geral">✦ Visão geral</a>
+          {contentExists && <a className="tab" href="#guia">▤ Guia completo</a>}
+          {mod.sourceUrl && <a className="tab" href="#download">↓ Download</a>}
+          {mod.faq.length > 0 && <a className="tab" href="#faq">? FAQ</a>}
+        </nav>
+
+        {contentExists && <section id="guia" className="mod-content-section">
+          <div className="sec-h"><h2>Informações <span>completas</span></h2></div>
+          <div className="mod-wp-content" dangerouslySetInnerHTML={{ __html: mod.content || "" }} />
+        </section>}
+
+        {mod.sourceUrl && <section id="download" className="mod-download-section">
+          <div><small>LINK INFORMADO NO WORDPRESS</small><h2>Download do <span>mod</span></h2><p>{mod.name}</p></div>
+          <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer">Abrir página de download ↗</a>
+        </section>}
+
+        {mod.faq.length > 0 && <section id="faq" className="faq-exact mod-faq">
+          <div className="sec-h"><h2>Perguntas <span>frequentes</span></h2></div>
+          <div className="faq-exact-list">{mod.faq.map((item, index) => <details open={index === 0} key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
+        </section>}
+      </main>
+      <SchemaScript data={schema} />
+      <SiteFooter />
+    </div>
+  );
 }

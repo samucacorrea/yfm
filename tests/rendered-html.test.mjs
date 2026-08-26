@@ -184,3 +184,41 @@ test("loads Google Tag Manager globally only when a valid GTM_ID is configured",
     else process.env.GTM_ID = previousGtmId;
   }
 });
+
+test("renders the WordPress mod API fields in the card-aligned detail layout", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input instanceof Request ? input.url : input);
+    if (url.includes("/wp-json/fm/v1/mod/")) return Response.json({
+      id: 1548,
+      nome: "Yugioh Forbidem Memories &#8211; Mod 15 DROP 15x",
+      slug: "yugioh-forbidem-memories-mod-15-drop-15x",
+      versao: "1.0",
+      autor: "Comunidade / ferramenta Drop More Cards",
+      drop_multiplier: "15",
+      tags: ["Drop Multiplier", "mod 15"],
+      imagem: "https://wp.yugifbm.com/mod-15.webp",
+      link_download: "https://example.com/download",
+      changelog: "<h3>O que é o mod</h3><p>Conteúdo completo do mod.</p>",
+      faq: [["O que é o mod?", "É uma modificação do jogo."]],
+    });
+    return originalFetch(input, init);
+  };
+
+  try {
+    const response = await render("/mods/yugioh-forbidem-memories-mod-15-drop-15x/");
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, /class="modtop"/);
+    assert.match(html, /Yugioh Forbidem Memories/);
+    assert.match(html, /Comunidade \/ ferramenta/);
+    assert.match(html, />15x</);
+    assert.match(html, /id="guia"/);
+    assert.match(html, /id="download"/);
+    assert.match(html, /id="faq"/);
+    assert.match(html, /"@type":"SoftwareApplication"/);
+    assert.match(html, /"@type":"FAQPage"/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

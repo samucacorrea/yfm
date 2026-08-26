@@ -1,6 +1,6 @@
 import type { CardRecord, Drop } from "./catalog";
 import type { Duelist, ModRecord, PoolCard, PoolKey } from "./portal-content";
-import { wordpressPaginatedRequest, wordpressRequest, type WordPressEntitySummary } from "./wordpress-client";
+import { wordpressPaginatedRequest, wordpressRequest } from "./wordpress-client";
 
 type WordPressCardRaw = {
   id: number;
@@ -212,51 +212,71 @@ export async function getWordPressDuelist(slug: string): Promise<Duelist> {
   };
 }
 
-type WordPressModRaw = WordPressEntitySummary & {
-  excerpt?: { rendered?: string };
-  content?: { rendered?: string };
-  meta?: Record<string, unknown>;
-  _embedded?: { "wp:featuredmedia"?: Array<{ source_url?: string; media_details?: { sizes?: Record<string, { source_url?: string }> } }>; "wp:term"?: Array<Array<{ name?: string; slug?: string }>>; author?: Array<{ name?: string }> };
+type WordPressModRaw = {
+  id: number;
+  nome: string;
+  slug: string;
+  link?: string;
+  versao?: string;
+  autor?: string;
+  tipo_de_mod?: string;
+  drop_multiplier?: string | number;
+  versao_base?: string;
+  arquivos_editados?: string | string[];
+  link_download?: string;
+  tags?: string[];
+  imagem?: string | false;
+  resposta_rapida?: string;
+  guia_completo?: string;
+  changelog?: string;
+  faq?: Array<[string, string] | { pergunta?: string; resposta?: string; q?: string; a?: string }>;
 };
 
-function cleanHtml(value = "") { return decodeWordPressText(value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()); }
-function metaText(meta: Record<string, unknown> | undefined, keys: string[]) { for (const key of keys) { const value = meta?.[key]; if (typeof value === "string" && value.trim()) return decodeWordPressText(value.trim()); } return ""; }
-function metaList(meta: Record<string, unknown> | undefined, keys: string[]) { for (const key of keys) { const value = meta?.[key]; if (Array.isArray(value)) return value.map(String).filter(Boolean); if (typeof value === "string" && value.trim()) { try { const parsed = JSON.parse(value); if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean); } catch { return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean); } } } return []; }
-function mediaUrl(media: WordPressModRaw["_embedded"] extends infer _T ? EmbeddedMedia | undefined : never) {
-  return media?.media_details?.sizes?.large?.source_url || media?.media_details?.sizes?.medium_large?.source_url || media?.source_url || "";
+function modList(value: string | string[] | undefined) {
+  if (Array.isArray(value)) return value.map((item) => decodeWordPressText(String(item).trim())).filter(Boolean);
+  return value ? value.split(/\r?\n|,/).map((item) => decodeWordPressText(item.trim())).filter(Boolean) : [];
 }
 
 function mapMod(record: WordPressModRaw): ModRecord {
-  const name = decodeWordPressText(record.title.rendered);
-  const meta = record.meta;
-  const media = record._embedded?.["wp:featuredmedia"]?.[0];
-  const tag = record._embedded?.["wp:term"]?.flat().find((term) => term.name)?.name || "";
-  const faqRaw = metaText(meta, ["faq_json", "faq"]);
-  let faq: Array<{ q: string; a: string }> = [];
-  if (faqRaw) { try { const parsed = JSON.parse(faqRaw) as Array<{ pergunta?: string; resposta?: string; q?: string; a?: string }>; if (Array.isArray(parsed)) faq = parsed.map((item) => ({ q: decodeWordPressText(item.pergunta || item.q), a: decodeWordPressText(item.resposta || item.a) })).filter((item) => item.q && item.a); } catch { faq = []; } }
+  const name = decodeWordPressText(record.nome);
+  const tags = (record.tags || []).map((tag) => decodeWordPressText(tag)).filter(Boolean);
+  const faq = (record.faq || []).map((item) => {
+    if (Array.isArray(item)) return { q: decodeWordPressText(item[0] || ""), a: decodeWordPressText(item[1] || "") };
+    return { q: decodeWordPressText(item.pergunta || item.q || ""), a: decodeWordPressText(item.resposta || item.a || "") };
+  }).filter((item) => item.q && item.a);
+  const guideContent = record.guia_completo || "";
+  const changelogContent = record.changelog || "";
+  const summary = decodeWordPressText(record.resposta_rapida || "");
   return {
+    id: record.id,
     slug: record.slug,
     name,
-    version: metaText(meta, ["versao", "version", "fm_versao", "mod_version", "fm_mod_version"]),
-    author: metaText(meta, ["autor", "author", "fm_autor", "mod_author", "fm_mod_author"]) || record._embedded?.author?.[0]?.name || "",
-    tag: decodeWordPressText(tag),
-    multiplier: metaText(meta, ["multiplicador", "multiplier", "drop_multiplier", "drop_x", "fm_multiplier"]),
-    summary: cleanHtml(record.excerpt?.rendered) || cleanHtml(record.content?.rendered).slice(0, 240),
-    content: record.content?.rendered || "",
-    image: mediaUrl(media),
-    sourceUrl: metaText(meta, ["url_oficial", "source_url", "link_externo", "download_url", "url_download", "link_download", "link_do_mod", "download_link", "fm_download_url"]),
-    features: metaList(meta, ["recursos", "features", "feature_list", "mod_features"]),
-    changelog: metaList(meta, ["changelog", "alteracoes", "change_log", "updates"]),
+    version: decodeWordPressText(record.versao || ""),
+    author: decodeWordPressText(record.autor || ""),
+    tag: decodeWordPressText(record.tipo_de_mod || tags[0] || ""),
+    tags,
+    multiplier: decodeWordPressText(String(record.drop_multiplier || "")),
+    baseVersion: decodeWordPressText(record.versao_base || ""),
+    editedFiles: modList(record.arquivos_editados),
+    summary,
+    content: guideContent || changelogContent,
+    guideContent,
+    changelogContent,
+    image: record.imagem ? imageUrl(record.imagem) : undefined,
+    sourceUrl: record.link_download ? decodeWordPressText(record.link_download) : "",
+    wordpressUrl: record.link ? decodeWordPressText(record.link) : "",
+    features: [],
+    changelog: [],
     faq,
   };
 }
 
 export async function getWordPressMods() {
-  const records = await wordpressRequest<WordPressModRaw[]>("wp/v2/fm_mod?per_page=100&status=publish&orderby=date&order=desc&_embed=1");
+  const records = await wordpressRequest<WordPressModRaw[]>("fm/v1/mods");
   return records.map(mapMod);
 }
 
 export async function getWordPressMod(slug: string) {
-  const records = await wordpressRequest<WordPressModRaw[]>(`wp/v2/fm_mod?slug=${encodeURIComponent(slug)}&status=publish&_embed=1`);
-  return records[0] ? mapMod(records[0]) : undefined;
+  const record = await wordpressRequest<WordPressModRaw>(`fm/v1/mod/${encodeURIComponent(slug)}`);
+  return record?.slug ? mapMod(record) : undefined;
 }
