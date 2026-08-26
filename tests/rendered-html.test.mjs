@@ -47,6 +47,13 @@ test("uses canonical WordPress character links", async () => {
   const html = await response.text();
   assert.match(html, /href="\/drops\/weevil-underwood\/"/);
   assert.doesNotMatch(html, /href="\/drops\/weevil\/"/);
+  assert.match(html, /RESPOSTA R.PIDA/i);
+  assert.match(html, /class="drop-featured-grid"/);
+  assert.match(html, /class="drop-card-preview"/);
+  assert.match(html, /<table>/);
+  assert.match(html, /"@type":"Dataset"/);
+  assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"@type":"BreadcrumbList"/);
 });
 
 for (const path of ["/cartas/", "/cartas/tipo/dragao/", "/drops/", "/drops/heishin/", "/mods/", "/passwords/", "/guias/", "/blog/"]) {
