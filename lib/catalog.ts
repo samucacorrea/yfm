@@ -15,6 +15,7 @@ export type CardRecord = {
   summary: string;
   drops: Drop[];
   image?: string;
+  droppable?: boolean;
 };
 
 export const cards: CardRecord[] = [

@@ -44,11 +44,13 @@ type WordPressCharacterRaw = {
   deck?: string;
   deck_nome?: string;
   melhor_rank?: string;
+  total_cartas?: number | string;
   sobre?: string;
   dica_farm?: string;
   guia_farm?: string;
   resposta_rapida?: string;
   imagem?: false | string | { url?: string; sizes?: Record<string, string> };
+  imagem_quadrada?: false | string | { url?: string; sizes?: Record<string, string> };
   faq_json?: string;
   faq?: Array<{ pergunta?: string; resposta?: string; q?: string; a?: string }>;
   drops?: Array<{
@@ -138,6 +140,7 @@ function mapCard(raw: WordPressCardRaw): CardRecord {
     summary: decodeWordPressText(raw.resposta_rapida) || `${name} é uma carta do tipo ${type} com ${numberValue(raw.atk)} de ATK e ${numberValue(raw.def)} de DEF.`,
     drops,
     image: imageUrl(raw.imagem),
+    droppable: Boolean(raw.dropavel),
   };
 }
 
@@ -166,6 +169,7 @@ export async function getWordPressDuelists() {
       location: decodeWordPressText(record.local || ""),
       deck: "",
       order: 0,
+      totalCards: numberValue(record.total_cartas),
       bestRank: decodeWordPressText(record.melhor_rank || ""),
       heroImage: imageUrl(record.imagem),
       squareImage: imageUrl(record.imagem_quadrada),
@@ -199,6 +203,7 @@ export async function getWordPressDuelist(slug: string): Promise<Duelist> {
     location: decodeWordPressText(raw.local || ""),
     deck: decodeWordPressText(raw.deck_nome || raw.deck || ""),
     order: numberValue(raw.id_jogo),
+    totalCards: numberValue(raw.total_cartas, Object.values(pools).flat().length),
     bestRank: decodeWordPressText(raw.melhor_rank || ""),
     about: decodeWordPressText(raw.sobre || ""),
     farmTip: decodeWordPressText(raw.dica_farm || ""),

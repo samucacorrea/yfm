@@ -24,7 +24,6 @@ function cardImage(card: CardRecord) {
 export default async function DropsPage() {
   const [duelists, cards] = await Promise.all([getDuelists(), getCards()]);
   const cardsByDuelist = new Map<string, CardRecord[]>();
-  let dropRelations = 0;
 
   for (const card of cards) {
     for (const drop of card.drops) {
@@ -32,15 +31,18 @@ export default async function DropsPage() {
       const current = cardsByDuelist.get(slug) || [];
       if (!current.some((item) => item.slug === card.slug)) current.push(card);
       cardsByDuelist.set(slug, current);
-      dropRelations += 1;
     }
   }
 
+  const totalsByDuelist = new Map(duelists.map((duelist) => [duelist.slug, duelist.totalCards]));
+  const relatedCount = (slug: string) => totalsByDuelist.get(slug) ?? cardsByDuelist.get(slug)?.length ?? 0;
+  const dropRelations = duelists.reduce((total, duelist) => total + relatedCount(duelist.slug), 0);
+
   const featuredCards = cards
-    .filter((card) => card.drops.length > 0)
+    .filter((card) => card.droppable || card.drops.length > 0)
     .sort((a, b) => b.drops.length - a.drops.length || b.atk - a.atk)
     .slice(0, 8);
-  const duelistsWithDrops = duelists.filter((duelist) => (cardsByDuelist.get(duelist.slug)?.length || 0) > 0).length;
+  const duelistsWithDrops = duelists.filter((duelist) => relatedCount(duelist.slug) > 0).length;
   const faq = [
     {
       q: "Como descobrir quem dropa uma carta em Forbidden Memories?",
@@ -140,7 +142,7 @@ export default async function DropsPage() {
       <p className="drop-section-lead">Reconheça a carta pela arte e abra sua ficha para comparar todos os personagens que podem entregá-la.</p>
       <div className="drop-featured-grid">{featuredCards.map((card) => <article className="drop-featured-card" key={card.slug}>
         <a className="drop-featured-art" href={`/cartas/${card.slug}/`}><CardVisual card={card} compact /></a>
-        <div className="drop-featured-copy"><small>#{String(card.id).padStart(3, "0")} · {card.type}</small><h3><a href={`/cartas/${card.slug}/`}>{card.name}</a></h3><div className="drop-featured-stats"><span>ATK <b>{card.atk}</b></span><span>DEF <b>{card.def}</b></span></div><p>{card.drops.length} {card.drops.length === 1 ? "fonte de drop" : "fontes de drop"}</p><a href={`/cartas/${card.slug}/`}>Comparar drops →</a></div>
+        <div className="drop-featured-copy"><small>#{String(card.id).padStart(3, "0")} · {card.type}</small><h3><a href={`/cartas/${card.slug}/`}>{card.name}</a></h3><div className="drop-featured-stats"><span>ATK <b>{card.atk}</b></span><span>DEF <b>{card.def}</b></span></div><p>{card.drops.length > 0 ? `${card.drops.length} ${card.drops.length === 1 ? "fonte de drop" : "fontes de drop"}` : "Drop disponível"}</p><a href={`/cartas/${card.slug}/`}>Comparar drops →</a></div>
       </article>)}</div>
     </div></section>}
 
@@ -161,7 +163,7 @@ export default async function DropsPage() {
               const image = cardImage(card);
               return <a href={`/cartas/${card.slug}/`} title={card.name} key={card.slug}>{image ? <img src={image} alt={`Carta ${card.name}`} loading="lazy" /> : <span>{card.name.slice(0, 1)}</span>}</a>;
             })}</div>}
-            <p><b>{cardsByDuelist.get(duelist.slug)?.length || 0}</b> cartas relacionadas no catálogo.</p>
+            <p><b>{relatedCount(duelist.slug)}</b> cartas relacionadas no catálogo.</p>
             <a className="drop-duelist-link" href={`/drops/${duelist.slug}/`}>Ver drops, taxas e ranks →</a>
           </div>
         </article>;
@@ -175,7 +177,7 @@ export default async function DropsPage() {
         <section id="o-que-sao-drops"><h3>O que são drops em Yu-Gi-Oh! Forbidden Memories?</h3><p>Drops são as cartas recebidas após uma vitória. A recompensa não vem de uma lista única: cada oponente possui bolsas separadas por faixa de rank. Por isso, vencer o personagem certo com o resultado errado pode impedir que a carta desejada entre no sorteio.</p></section>
         <section id="ranks-de-drop"><h3>Qual a diferença entre S/A POW, S/A TEC e B/C/D?</h3><div className="drop-rank-grid"><div><b>S/A POW</b><p>Priorize dano, domínio do campo e vitória rápida. É a rota mais usada para farms ofensivos.</p></div><div><b>S/A TEC</b><p>Prolongue o duelo e use recursos variados. É a bolsa associada ao desempenho técnico.</p></div><div><b>B/C/D</b><p>Reúne recompensas intermediárias e pode conter cartas que não aparecem nas faixas S/A.</p></div></div></section>
         <section id="como-farmar"><h3>Como farmar cartas com mais eficiência?</h3><ol><li><strong>Abra a ficha da carta</strong> e confirme quais duelistas realmente a dropam.</li><li><strong>Confira a bolsa</strong> antes do duelo: POW, TEC e B/C/D possuem recompensas diferentes.</li><li><strong>Compare as taxas</strong> e escolha o personagem que seu deck vence com consistência.</li><li><strong>Registre uma sequência de duelos</strong>, pois probabilidades baixas podem exigir muitas tentativas.</li></ol></section>
-        <section id="tabela-duelistas"><h3>Quais duelistas têm tabelas de drops?</h3><div className="drop-table-wrap"><table><caption>Duelistas catalogados e quantidade de cartas relacionadas</caption><thead><tr><th scope="col">Duelista</th><th scope="col">Local</th><th scope="col">Cartas catalogadas</th><th scope="col">Tabela</th></tr></thead><tbody>{duelists.map((duelist) => <tr key={duelist.slug}><th scope="row">{duelist.name}</th><td>{duelist.location || "Não informado"}</td><td>{cardsByDuelist.get(duelist.slug)?.length || 0}</td><td><a href={`/drops/${duelist.slug}/`}>Consultar →</a></td></tr>)}</tbody></table></div></section>
+        <section id="tabela-duelistas"><h3>Quais duelistas têm tabelas de drops?</h3><div className="drop-table-wrap"><table><caption>Duelistas catalogados e quantidade de cartas relacionadas</caption><thead><tr><th scope="col">Duelista</th><th scope="col">Local</th><th scope="col">Cartas catalogadas</th><th scope="col">Tabela</th></tr></thead><tbody>{duelists.map((duelist) => <tr key={duelist.slug}><th scope="row">{duelist.name}</th><td>{duelist.location || "Não informado"}</td><td>{relatedCount(duelist.slug)}</td><td><a href={`/drops/${duelist.slug}/`}>Consultar →</a></td></tr>)}</tbody></table></div></section>
       </div>
     </article>
 

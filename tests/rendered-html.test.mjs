@@ -50,6 +50,7 @@ test("uses canonical WordPress character links", async () => {
   assert.match(html, /RESPOSTA R.PIDA/i);
   assert.match(html, /class="drop-featured-grid"/);
   assert.match(html, /class="drop-card-preview"/);
+  assert.match(html, /<dd>[1-9]\d*<\/dd><\/div><div><dt>Rela(?:Ã§Ãµ|çõ)es de drop<\/dt><dd>[1-9]\d*<\/dd>/);
   assert.match(html, /<table>/);
   assert.match(html, /"@type":"Dataset"/);
   assert.match(html, /"@type":"FAQPage"/);
