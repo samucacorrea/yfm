@@ -21,6 +21,9 @@ test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery p
   assert.match(html, /Encontre qualquer/i);
   assert.match(html, /carta, drop ou password/i);
   assert.match(html, /action="\/cartas\/"/);
+  assert.match(html, /<meta name="theme-color" content="#08080A"/i);
+  assert.match(html, /<link rel="icon" href="\/favicon\.png" type="image\/png"/i);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/favicon\.png"/i);
   assert.match(html, /O que você/);
   assert.match(html, /Mais <span>buscados/);
   assert.match(html, /Explorar <span>mais/);

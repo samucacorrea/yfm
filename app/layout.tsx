@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 
@@ -70,6 +70,11 @@ function googleTagManagerBootstrap(containerId: string) {
   `;
 }
 
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: "#08080A",
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
   const requestHeaders = await headers();
@@ -83,6 +88,11 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: "Yu-Gi-Oh! Forbidden Memories",
     title,
     description,
+    icons: {
+      icon: [{ url: "/favicon.png", type: "image/png" }],
+      shortcut: "/favicon.png",
+      apple: "/favicon.png",
+    },
     openGraph: { title, description, siteName: "Yu-Gi-Oh! Forbidden Memories", images: [{ url: image, width: 1730, height: 909, alt: "Yu-Gi-Oh! Forbidden Memories — Todas as cartas, todos os drops" }] },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
