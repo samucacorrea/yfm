@@ -14,6 +14,8 @@ type WordPressPostRaw = {
   content?: Rendered;
   link: string;
   featured_media?: number;
+  acf?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
   _embedded?: {
     "wp:featuredmedia"?: EmbeddedMedia[];
     "wp:term"?: EmbeddedTerm[][];
@@ -28,6 +30,7 @@ export type WordPressPost = WordPressPostRaw & {
   featuredImage?: string;
   featuredImageAlt?: string;
   authorName?: string;
+  customSchema?: string;
 };
 
 const stripHtml = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#8217;/g, "’").replace(/&#8211;/g, "–").replace(/&#8212;/g, "—").replace(/\s+/g, " ").trim();
@@ -36,6 +39,8 @@ function normalizePost(post: WordPressPostRaw): WordPressPost {
   const terms = (post._embedded?.["wp:term"] || []).flat();
   const category = terms.find((term) => term.taxonomy === "category") || terms[0];
   const media = post._embedded?.["wp:featuredmedia"]?.[0];
+  const acfSchema = typeof post.acf?.scheema === "string" ? post.acf.scheema.trim() : "";
+  const metaSchema = typeof post.meta?.scheema === "string" ? post.meta.scheema.trim() : "";
   return {
     ...post,
     plainExcerpt: stripHtml(post.excerpt?.rendered) || stripHtml(post.content?.rendered).slice(0, 220),
@@ -44,6 +49,7 @@ function normalizePost(post: WordPressPostRaw): WordPressPost {
     featuredImage: media?.media_details?.sizes?.large?.source_url || media?.media_details?.sizes?.medium_large?.source_url || media?.source_url,
     featuredImageAlt: media?.alt_text || stripHtml(post.title.rendered),
     authorName: post._embedded?.author?.[0]?.name,
+    customSchema: acfSchema || metaSchema || undefined,
   };
 }
 
