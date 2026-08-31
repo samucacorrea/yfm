@@ -12,19 +12,7 @@ function getGoogleTagManagerId() {
 function googleTagManagerBootstrap(containerId: string) {
   return `
     window.dataLayer = window.dataLayer || [];
-    let gtmLoaded = false;
-
-    const loadGtm = () => {
-      if (gtmLoaded) return;
-      gtmLoaded = true;
-
-      window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-
-      const gtmScript = document.createElement("script");
-      gtmScript.async = true;
-      gtmScript.src = "https://www.googletagmanager.com/gtm.js?id=${containerId}";
-      document.head.appendChild(gtmScript);
-    };
+    window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js", "gtm.containerId": "${containerId}" });
 
     let lastLocation = "";
     const sendPageView = () => {
@@ -56,17 +44,6 @@ function googleTagManagerBootstrap(containerId: string) {
 
     window.addEventListener("popstate", schedulePageView);
     schedulePageView();
-
-    const startGtm = () => {
-      loadGtm();
-      window.removeEventListener("pointerdown", startGtm);
-      window.removeEventListener("keydown", startGtm);
-      window.removeEventListener("touchstart", startGtm);
-    };
-
-    window.addEventListener("pointerdown", startGtm, { once: true, passive: true });
-    window.addEventListener("keydown", startGtm, { once: true });
-    window.addEventListener("touchstart", startGtm, { once: true, passive: true });
   `;
 }
 
@@ -111,10 +88,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap"
         />
         {gtmId ? (
-          <script
-            id="google-tag-manager"
-            dangerouslySetInnerHTML={{ __html: googleTagManagerBootstrap(gtmId) }}
-          />
+          <>
+            <script
+              id="google-tag-manager"
+              dangerouslySetInnerHTML={{ __html: googleTagManagerBootstrap(gtmId) }}
+            />
+            <script async src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`} />
+          </>
         ) : null}
       </head>
       <body>
