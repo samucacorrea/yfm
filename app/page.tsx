@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getCardImage } from "../lib/card-images";
 import { getPublishedPosts } from "../lib/wordpress";
 import { getCards, getDuelists } from "../lib/data";
+import { SITE_ORIGIN } from "../lib/site";
 import { CardVisual } from "./components/card-visual";
 import { SchemaScript } from "./components/portal-components";
 import { SiteFooter } from "./components/site-footer";
@@ -27,10 +29,14 @@ const explore = [
   { icon:"▤", title:"Como jogar / Onde baixar", text:"Emuladores, PC e celular — via links.", href:"/guias/" },
   { icon:"☆", title:"Cheats & Estrelas infinitas", text:"Truques, códigos e muito mais.", href:"/guias/" },
 ];
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default async function Home() {
-  const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-  const organizationId = `${siteOrigin}/#organization`;
-  const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${siteOrigin}/#website`, url: `${siteOrigin}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${siteOrigin}/`, logo: { "@type": "ImageObject", url: `${siteOrigin}/logo.webp` } }] };
+  const organizationId = `${SITE_ORIGIN}/#organization`;
+  const websiteSchema = { "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", "@id": `${SITE_ORIGIN}/#website`, url: `${SITE_ORIGIN}/`, name: "Yu-Gi-Oh! Forbidden Memories", inLanguage: "pt-BR", publisher: { "@id": organizationId } }, { "@type": "Organization", "@id": organizationId, name: "Yu-Gi-Oh! Forbidden Memories", url: `${SITE_ORIGIN}/`, logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/logo.webp` } }] };
   const [wp, allCards, allDuelists] = await Promise.all([getPublishedPosts(3), getCards(), getDuelists()]);
   const posts = wp;
   const cardsBySlug = new Map(allCards.map((card) => [card.slug, card]));

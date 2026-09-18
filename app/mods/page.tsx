@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../exact-card.css";
 import "./mods.css";
 import { getMods } from "../../lib/data";
+import { absoluteSiteUrl } from "../../lib/site";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { SchemaScript } from "../components/portal-components";
@@ -9,10 +10,10 @@ import { SchemaScript } from "../components/portal-components";
 export const metadata: Metadata = {
   title: "Mods | Yu-Gi-Oh! Forbidden Memories",
   description: "Mods de Yu-Gi-Oh! Forbidden Memories publicados no WordPress, com versões, autores, detalhes e links oficiais.",
+  alternates: { canonical: "/mods/" },
 };
 
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const absoluteUrl = absoluteSiteUrl;
 const multiplierLabel = (value: string) => value && /^\d+(?:[.,]\d+)?$/.test(value) ? `${value}x` : value;
 
 export default async function ModsPage() {

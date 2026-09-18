@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import "../../portal.css";
 import { getPublishedPost } from "../../../lib/wordpress";
+import { SITE_ORIGIN } from "../../../lib/site";
 import { PortalPage, SchemaScript } from "../../components/portal-components";
 
 type Props = { params: Promise<{ slug: string }> };
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
+const siteOrigin = SITE_ORIGIN;
+
+function isValidJson(value: string) {
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function resolveBlogSchema(post: Awaited<ReturnType<typeof getPublishedPost>>) {
   if (!post) return null;
 
-  if (post.customSchema) {
-    try {
-      JSON.parse(post.customSchema);
-      return { raw: post.customSchema };
-    } catch {}
-  }
+  if (post.customSchema && isValidJson(post.customSchema)) return { raw: post.customSchema };
 
   const postUrl = `${siteOrigin}/blog/${post.slug}/`;
   const organizationId = `${siteOrigin}/#organization`;
@@ -100,7 +105,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: `/blog/${post.slug}/` },
-    openGraph: { title, description, type: "article", publishedTime: post.date, modifiedTime: post.modified, images },
+    openGraph: { title, description, type: "article", url: `/blog/${post.slug}/`, publishedTime: post.date, modifiedTime: post.modified, images },
     twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) },
   };
 }

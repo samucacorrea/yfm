@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "../../exact-card.css";
 import { cards as localCards } from "../../../lib/catalog";
 import { getCard, getCards, getDuelists } from "../../../lib/data";
 import { cardImageSources as cardImages, getCardImage } from "../../../lib/card-images";
+import { SITE_ORIGIN, absoluteSiteUrl } from "../../../lib/site";
 import { taxonomySlug } from "../../../lib/wordpress-data";
 import { CardVisual } from "../../components/card-visual";
 import { CopyPassword } from "../../components/copy-password";
 
 type PageProps={params:Promise<{slug:string}>};
 
-const siteOrigin=(process.env.SITE_URL||"https://yugiohforbiddenmemories.com").replace(/\/$/,"");
-const siteUrl=(path:string)=>`${siteOrigin}${path.startsWith("/")?path:`/${path}`}`;
+const siteOrigin=SITE_ORIGIN;
+const siteUrl=absoluteSiteUrl;
 const datasetCreator={"@type":"Organization",name:"Yu-Gi-Oh! Forbidden Memories",url:siteOrigin};
 const datasetLicense="https://creativecommons.org/licenses/by/4.0/";
 
 export function generateStaticParams(){return localCards.map(card=>({slug:card.slug}))}
-export async function generateMetadata({params}:PageProps):Promise<Metadata>{const card=await getCard((await params).slug);if(!card)return{title:"Carta não encontrada | Yu-Gi-Oh! Forbidden Memories"};const title=`${card.name}: drops, password e stats | Yu-Gi-Oh! Forbidden Memories`;const description=`${card.name} (#${String(card.id).padStart(3,"0")}): password ${card.password}, ${card.atk} ATK, ${card.def} DEF e onde conseguir em Forbidden Memories.`;const image=getCardImage(card.slug);const requestHeaders=await headers();const host=requestHeaders.get("x-forwarded-host")||requestHeaders.get("host")||"localhost:3000";const protocol=requestHeaders.get("x-forwarded-proto")||(host.startsWith("localhost")?"http":"https");const imageSource=card.image||image?.src;const socialImage=imageSource?new URL(imageSource,`${protocol}://${host}`).toString():`${protocol}://${host}/og.png`;return{title,description,openGraph:{title,description,siteName:"Yu-Gi-Oh! Forbidden Memories",images:[{url:socialImage,width:image?.width,height:image?.height,alt:`Carta ${card.name}`}]},twitter:{card:"summary_large_image",title,description,images:[socialImage]}}}
+export async function generateMetadata({params}:PageProps):Promise<Metadata>{const card=await getCard((await params).slug);if(!card)return{title:"Carta não encontrada | Yu-Gi-Oh! Forbidden Memories"};const title=`${card.name}: drops, password e stats | Yu-Gi-Oh! Forbidden Memories`;const description=`${card.name} (#${String(card.id).padStart(3,"0")}): password ${card.password}, ${card.atk} ATK, ${card.def} DEF e onde conseguir em Forbidden Memories.`;const image=getCardImage(card.slug);const imageSource=card.image||image?.src;const socialImage=imageSource?new URL(imageSource,`${SITE_ORIGIN}/`).toString():`${SITE_ORIGIN}/og.png`;return{title,description,alternates:{canonical:`/cartas/${card.slug}/`},openGraph:{title,description,siteName:"Yu-Gi-Oh! Forbidden Memories",url:`/cartas/${card.slug}/`,images:[{url:socialImage,width:image?.width,height:image?.height,alt:`Carta ${card.name}`}]},twitter:{card:"summary_large_image",title,description,images:[socialImage]}}}
 
 export default async function CardPage({params}:PageProps){
   const card=await getCard((await params).slug);if(!card)return <main className="not-found"><p>404</p><h1>Carta não encontrada</h1><a href="/cartas/">Voltar para as cartas</a></main>;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../portal.css";
 import "./passwords.css";
 import { getCards } from "../../lib/data";
+import { absoluteSiteUrl } from "../../lib/site";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 import { PasswordCard } from "./password-card";
@@ -13,8 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/passwords/" },
 };
 
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const absoluteUrl = absoluteSiteUrl;
 
 export default async function PasswordsPage({ searchParams }: { searchParams: Promise<{ busca?: string }> }) {
   const cards = await getCards();
@@ -87,7 +87,7 @@ export default async function PasswordsPage({ searchParams }: { searchParams: Pr
         name: "Base de passwords de Yu-Gi-Oh! Forbidden Memories",
         description: "Passwords de oito dígitos e informações das cartas catalogadas no jogo de PlayStation.",
         url: pageUrl,
-        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: siteOrigin },
+        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: absoluteUrl("/") },
         license: "https://creativecommons.org/licenses/by/4.0/",
         isAccessibleForFree: true,
         variableMeasured: ["ID", "Carta", "Password", "Tipo", "Atributo", "ATK", "DEF", "Custo em estrelas"],

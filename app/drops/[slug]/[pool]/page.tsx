@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `Drops ${labels[pool]} de ${duelist.name} | Yu-Gi-Oh! Forbidden Memories`;
   const description = `${duelist.name}: cartas, tipos e probabilidades da bolsa ${labels[pool]} em Forbidden Memories.`;
   const images = duelist.heroImage ? [{ url: duelist.heroImage, alt: duelist.name }] : [];
-  return { title, description, openGraph: { title, description, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };
+  return { title, description, alternates: { canonical: `/drops/${duelist.slug}/${pool}/` }, openGraph: { title, description, url: `/drops/${duelist.slug}/${pool}/`, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };
 }
 
 export default async function PoolPage({ params }: Props) {

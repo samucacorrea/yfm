@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!guide) return { title: "Guia não encontrado | Yu-Gi-Oh! Forbidden Memories" };
   const title = `${guide.title.rendered}: guia completo | Yu-Gi-Oh! Forbidden Memories`;
   const images = guide.featuredImage ? [{ url: guide.featuredImage, alt: guide.featuredImageAlt || guide.title.rendered }] : [];
-  return { title, description: guide.plainExcerpt, openGraph: { title, description: guide.plainExcerpt, type: "article", publishedTime: guide.date, modifiedTime: guide.modified, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description: guide.plainExcerpt, images: images.map((image) => image.url) } };
+  return { title, description: guide.plainExcerpt, alternates: { canonical: `/guias/${guide.slug}/` }, openGraph: { title, description: guide.plainExcerpt, type: "article", url: `/guias/${guide.slug}/`, publishedTime: guide.date, modifiedTime: guide.modified, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description: guide.plainExcerpt, images: images.map((image) => image.url) } };
 }
 
 export default async function GuidePage({ params }: Props) {

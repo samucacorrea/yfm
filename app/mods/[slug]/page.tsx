@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "../../exact-card.css";
 import "../mods.css";
 import { getMod } from "../../../lib/data";
+import { absoluteSiteUrl } from "../../../lib/site";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 import { SchemaScript } from "../../components/portal-components";
 
 type Props = { params: Promise<{ slug: string }> };
 
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const absoluteUrl = absoluteSiteUrl;
 const plainText = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const multiplierLabel = (value: string) => value && /^\d+(?:[.,]\d+)?$/.test(value) ? `${value}x` : value;
 
@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    openGraph: { title, description, siteName: "Yu-Gi-Oh! Forbidden Memories", images },
+    alternates: { canonical: `/mods/${mod.slug}/` },
+    openGraph: { title, description, siteName: "Yu-Gi-Oh! Forbidden Memories", url: `/mods/${mod.slug}/`, images },
     twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) },
   };
 }

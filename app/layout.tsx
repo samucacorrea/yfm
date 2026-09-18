@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
+import { SITE_ORIGIN } from "../lib/site";
 import "./globals.css";
 
 const GTM_ID_PATTERN = /^GTM-[A-Z0-9]+$/i;
@@ -53,15 +53,11 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
-  const image = `${protocol}://${host}/og.png`;
+  const image = `${SITE_ORIGIN}/og.png`;
   const title = "Yu-Gi-Oh! Forbidden Memories — Cartas, Drops e Guias";
   const description = "Encontre cartas, passwords, drops e as melhores rotas de farm de Yu-Gi-Oh! Forbidden Memories em português.";
   return {
-    metadataBase: new URL(siteOrigin),
+    metadataBase: new URL(SITE_ORIGIN),
     applicationName: "Yu-Gi-Oh! Forbidden Memories",
     title,
     description,

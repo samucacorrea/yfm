@@ -1,16 +1,54 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-async function render(path = "/") {
+async function render(path = "/", origin = "http://localhost") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${path}`);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${origin}-${path}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
-    new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }),
+    new Request(new URL(path, origin), { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+test("redirects legacy domains to the canonical .com host with path and query intact", async () => {
+  for (const host of [
+    "yugiohforbiddenmemories.com.br",
+    "www.yugiohforbiddenmemories.com.br",
+    "www.yugiohforbiddenmemories.com",
+  ]) {
+    const response = await render("/cartas/dark-magician/?utm_source=legacy", `https://${host}`);
+    assert.equal(response.status, 301);
+    assert.equal(
+      response.headers.get("location"),
+      "https://yugiohforbiddenmemories.com/cartas/dark-magician/?utm_source=legacy",
+    );
+  }
+});
+
+test("publishes self-referencing canonicals on indexable pages", async () => {
+  for (const [path, canonical] of [
+    ["/", "https://yugiohforbiddenmemories.com/"],
+    ["/cartas/", "https://yugiohforbiddenmemories.com/cartas/"],
+    ["/cartas/tipo/dragao/", "https://yugiohforbiddenmemories.com/cartas/tipo/dragao/"],
+    ["/cartas/dark-magician/", "https://yugiohforbiddenmemories.com/cartas/dark-magician/"],
+    ["/drops/", "https://yugiohforbiddenmemories.com/drops/"],
+    ["/drops/heishin/", "https://yugiohforbiddenmemories.com/drops/heishin/"],
+    ["/drops/heishin/s-pow/", "https://yugiohforbiddenmemories.com/drops/heishin/s-pow/"],
+    ["/mods/", "https://yugiohforbiddenmemories.com/mods/"],
+    ["/passwords/", "https://yugiohforbiddenmemories.com/passwords/"],
+    ["/passwords/dragon/", "https://yugiohforbiddenmemories.com/passwords/dragao/"],
+    ["/guias/", "https://yugiohforbiddenmemories.com/guias/"],
+    ["/blog/", "https://yugiohforbiddenmemories.com/blog/"],
+  ]) {
+    const response = await render(path);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, new RegExp(`<link rel="canonical" href="${canonical}"`));
+    assert.doesNotMatch(html, /yugiohforbiddenmemories\.com\.br/i);
+  }
+});
 
 test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery paths", async () => {
   const response = await render("/");

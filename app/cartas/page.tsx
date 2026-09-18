@@ -7,6 +7,7 @@ import { SiteHeader } from "../components/site-header";
 export const metadata: Metadata = {
   title: "Lista de cartas | Yu-Gi-Oh! Forbidden Memories",
   description: "Consulte cartas, atributos, ATK, DEF, passwords e onde conseguir cada carta de Yu-Gi-Oh! Forbidden Memories.",
+  alternates: { canonical: "/cartas/" },
 };
 
 export default async function CardsPage({ searchParams }: { searchParams: Promise<{ busca?: string }> }) {

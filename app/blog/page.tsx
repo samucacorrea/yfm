@@ -3,7 +3,7 @@ import "../portal.css";
 import { getPublishedPosts } from "../../lib/wordpress";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Blog | Yu-Gi-Oh! Forbidden Memories", description: "Posts publicados no WordPress sobre Forbidden Memories." };
+export const metadata: Metadata = { title: "Blog | Yu-Gi-Oh! Forbidden Memories", description: "Posts publicados no WordPress sobre Forbidden Memories.", alternates: { canonical: "/blog/" } };
 
 export default async function BlogPage() {
   const posts = await getPublishedPosts();

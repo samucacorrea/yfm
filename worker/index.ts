@@ -20,6 +20,12 @@ interface ExecutionContext {
 }
 
 const LONG_CACHE_EXTENSIONS = /\.(?:avif|css|gif|ico|jpeg|jpg|js|mjs|png|svg|webp|woff2?)$/i;
+const LEGACY_HOSTS = new Set([
+  "yugiohforbiddenmemories.com.br",
+  "www.yugiohforbiddenmemories.com.br",
+  "www.yugiohforbiddenmemories.com",
+]);
+const CANONICAL_ORIGIN = "https://yugiohforbiddenmemories.com";
 
 function withStaticAssetCache(url: URL, response: Response) {
   if (!response.ok) return response;
@@ -44,6 +50,11 @@ function withStaticAssetCache(url: URL, response: Response) {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (LEGACY_HOSTS.has(url.hostname.toLowerCase())) {
+      const destination = new URL(`${url.pathname}${url.search}`, CANONICAL_ORIGIN);
+      return Response.redirect(destination, 301);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

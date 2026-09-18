@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `Drops do ${duelist.name}: cartas, taxas e ranks | Yu-Gi-Oh! Forbidden Memories`;
   const description = duelist.answer || duelist.about || `Drops de ${duelist.name} em Yu-Gi-Oh! Forbidden Memories.`;
   const images = duelist.heroImage ? [{ url: duelist.heroImage, alt: duelist.name }] : [];
-  return { title, description, openGraph: { title, description, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };
+  return { title, description, alternates: { canonical: `/drops/${duelist.slug}/` }, openGraph: { title, description, url: `/drops/${duelist.slug}/`, images }, twitter: { card: images.length ? "summary_large_image" : "summary", title, description, images: images.map((image) => image.url) } };
 }
 
 export default async function DuelistPage({ params }: Props) {

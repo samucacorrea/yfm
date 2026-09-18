@@ -4,6 +4,7 @@ import "./drops-index.css";
 import { getCardImage } from "../../lib/card-images";
 import type { CardRecord } from "../../lib/catalog";
 import { getCards, getDuelists } from "../../lib/data";
+import { absoluteSiteUrl } from "../../lib/site";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { CardVisual } from "../components/card-visual";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
@@ -12,10 +13,10 @@ export const metadata: Metadata = {
   title: "Drops de Yu-Gi-Oh! Forbidden Memories: cartas, duelistas e ranks",
   description: "Consulte quem dropa cada carta de Yu-Gi-Oh! Forbidden Memories, compare duelistas e entenda as bolsas S/A POW, S/A TEC e B/C/D.",
   keywords: ["drops Forbidden Memories", "quem dropa cartas Forbidden Memories", "S POW Forbidden Memories", "S TEC Forbidden Memories", "tabela de drops Yu-Gi-Oh"],
+  alternates: { canonical: "/drops/" },
 };
 
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const absoluteUrl = absoluteSiteUrl;
 
 function cardImage(card: CardRecord) {
   return card.image || getCardImage(card.slug)?.src;
@@ -103,7 +104,7 @@ export default async function DropsPage() {
         name: "Tabela de drops de Yu-Gi-Oh! Forbidden Memories",
         description: "Relações entre cartas, duelistas, ranks, bolsas de recompensa e taxas de drop.",
         url: absoluteUrl("/drops/"),
-        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: siteOrigin },
+        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: absoluteUrl("/") },
         license: "https://creativecommons.org/licenses/by/4.0/",
         isAccessibleForFree: true,
         variableMeasured: ["Carta", "Duelista", "Pool de recompensa", "Rank", "Taxa de drop"],

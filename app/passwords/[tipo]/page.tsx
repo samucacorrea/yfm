@@ -3,13 +3,13 @@ import { cards as localCards } from "../../../lib/catalog";
 import "../../portal.css";
 import "../passwords.css";
 import { getCards } from "../../../lib/data";
+import { absoluteSiteUrl } from "../../../lib/site";
 import { taxonomySlug } from "../../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../../components/portal-components";
 import { PasswordCard } from "../password-card";
 
 type Props = { params: Promise<{ tipo: string }> };
-const siteOrigin = (process.env.SITE_URL || "https://yugiohforbiddenmemories.com").replace(/\/$/, "");
-const absoluteUrl = (path: string) => `${siteOrigin}${path}`;
+const absoluteUrl = absoluteSiteUrl;
 
 export function generateStaticParams() {
   return [...new Set(localCards.map((card) => taxonomySlug(card.type)))].map((tipo) => ({ tipo }));
@@ -91,7 +91,7 @@ export default async function PasswordTypePage({ params }: Props) {
         name: `Base de passwords de cartas ${label}`,
         description: `Passwords, atributos, estatísticas e custos das cartas ${label} em Yu-Gi-Oh! Forbidden Memories.`,
         url: pageUrl,
-        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: siteOrigin },
+        creator: { "@type": "Organization", name: "Yu-Gi-Oh! Forbidden Memories", url: absoluteUrl("/") },
         license: "https://creativecommons.org/licenses/by/4.0/",
         isAccessibleForFree: true,
         variableMeasured: ["Carta", "Password", "Atributo", "ATK", "DEF", "Custo em estrelas"],
