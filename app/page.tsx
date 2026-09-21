@@ -50,6 +50,8 @@ export default async function Home() {
       <img
         className="template-hero-bg"
         src="/bg.webp"
+        srcSet="/bg-480.webp 480w, /bg-768.webp 768w, /bg-1200.webp 1200w, /bg.webp 1717w"
+        sizes="100vw"
         alt=""
         width="1717"
         height="916"

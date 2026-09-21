@@ -62,6 +62,10 @@ test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery p
   assert.match(html, /<meta name="theme-color" content="#08080A"/i);
   assert.match(html, /<link rel="icon" href="\/favicon\.png" type="image\/png"/i);
   assert.match(html, /<link rel="apple-touch-icon" href="\/favicon\.png"/i);
+  assert.match(html, /srcSet="\/bg-480\.webp 480w, \/bg-768\.webp 768w, \/bg-1200\.webp 1200w, \/bg\.webp 1717w"/i);
+  assert.match(html, /sizes="100vw"/i);
+  assert.match(html, /id="google-fonts-stylesheet" rel="preload" as="style"/i);
+  assert.doesNotMatch(html, /id="google-fonts-stylesheet" rel="stylesheet"/i);
   assert.match(html, /O que você/);
   assert.match(html, /Mais <span>buscados/);
   assert.match(html, /Explorar <span>mais/);

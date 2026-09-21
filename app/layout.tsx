@@ -3,6 +3,7 @@ import { SITE_ORIGIN } from "../lib/site";
 import "./globals.css";
 
 const GTM_ID_PATTERN = /^GTM-[A-Z0-9]+$/i;
+const GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap";
 
 function getGoogleTagManagerId() {
   const value = (process.env.GTM_ID || process.env.NEXT_PUBLIC_GTM_ID || "").trim();
@@ -47,6 +48,17 @@ function googleTagManagerBootstrap(containerId: string) {
   `;
 }
 
+function googleFontsBootstrap() {
+  return `
+    const fontStylesheet = document.getElementById("google-fonts-stylesheet");
+    if (fontStylesheet) {
+      fontStylesheet.addEventListener("load", function () {
+        this.rel = "stylesheet";
+      }, { once: true });
+    }
+  `;
+}
+
 export const viewport: Viewport = {
   colorScheme: "dark",
   themeColor: "#08080A",
@@ -80,9 +92,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap"
+          id="google-fonts-stylesheet"
+          rel="preload"
+          as="style"
+          href={GOOGLE_FONTS_URL}
         />
+        <script dangerouslySetInnerHTML={{ __html: googleFontsBootstrap() }} />
+        <noscript><link rel="stylesheet" href={GOOGLE_FONTS_URL} /></noscript>
         {gtmId ? (
           <>
             <script
