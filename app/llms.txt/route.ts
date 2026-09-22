@@ -1,4 +1,4 @@
-# Yu-Gi-Oh! Forbidden Memories
+const content = `# Yu-Gi-Oh! Forbidden Memories
 
 > Portal de referência em português sobre Yu-Gi-Oh! Forbidden Memories, com catálogo de cartas, passwords, drops e guias de estratégia. O conteúdo reúne dados pesquisáveis e estruturados para facilitar consultas sobre o jogo.
 
@@ -17,3 +17,13 @@ As versões Markdown abaixo apresentam o conteúdo principal sem navegação ou 
 
 - [Mods da comunidade](https://yugiohforbiddenmemories.com/mods/): informações, versões, autores, instruções e links externos de mods catalogados.
 - [Blog](https://yugiohforbiddenmemories.com/blog/): artigos editoriais, novidades e conteúdo complementar sobre o jogo.
+`;
+
+export function GET() {
+  return new Response(content, {
+    headers: {
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "Content-Type": "text/plain; charset=utf-8",
+    },
+  });
+}

@@ -1,23 +1,19 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render(path = "/", origin = "http://localhost", assetsFetch = async () => new Response("Not found", { status: 404 })) {
+async function render(path = "/", origin = "http://localhost") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${origin}-${path}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
     new Request(new URL(path, origin), { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: assetsFetch } },
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
 
 test("serves the root llms.txt asset as UTF-8 plain text", async () => {
-  const content = await readFile(new URL("../public/llms.txt", import.meta.url), "utf8");
-  const response = await render("/llms.txt", "http://localhost", async () => new Response(content, {
-    headers: { "Content-Type": "application/octet-stream" },
-  }));
+  const response = await render("/llms.txt");
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
   const body = await response.text();
