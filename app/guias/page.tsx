@@ -3,7 +3,7 @@ import "../portal.css";
 import { getPublishedGuides } from "../../lib/wordpress";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
-export const metadata: Metadata = { title: "Guias | Yu-Gi-Oh! Forbidden Memories", description: "Guias publicados no WordPress sobre Yu-Gi-Oh! Forbidden Memories.", alternates: { canonical: "/guias/" } };
+export const metadata: Metadata = { title: "Guias | Yu-Gi-Oh! Forbidden Memories", description: "Guias publicados no WordPress sobre Yu-Gi-Oh! Forbidden Memories.", alternates: { canonical: "/guias/", types: { "text/markdown": "/guias.md" } } };
 
 export default async function GuidesPage() {
   const guides = await getPublishedGuides();

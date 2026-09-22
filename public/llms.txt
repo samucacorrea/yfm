@@ -1,17 +1,19 @@
 # Yu-Gi-Oh! Forbidden Memories
 
-Yu-Gi-Oh! Forbidden Memories é um portal em português sobre cartas, drops,
-passwords, mods e estratégias do jogo de PlayStation.
+> Portal de referência em português sobre Yu-Gi-Oh! Forbidden Memories, com catálogo de cartas, passwords, drops e guias de estratégia. O conteúdo reúne dados pesquisáveis e estruturados para facilitar consultas sobre o jogo.
+
+Yu-Gi-Oh! Forbidden Memories é um jogo de cartas lançado para PlayStation. O portal cobre as 722 cartas do jogo, seus atributos e estatísticas, passwords, custos em estrelas, duelistas, bolsas de recompensa, ranks e rotas de farm.
+
+As versões Markdown abaixo apresentam o conteúdo principal sem navegação ou elementos visuais. Os dados estruturados em JSON-LD publicados nas páginas HTML correspondentes são a fonte canônica.
 
 ## Páginas principais
 
-- https://yugiohforbiddenmemories.com/cartas/ — catálogo de cartas, atributos e status
-- https://yugiohforbiddenmemories.com/drops/ — duelistas e bolsas S/A POW, S/A TEC e B-C-D
-- https://yugiohforbiddenmemories.com/passwords/ — códigos de oito dígitos e custos
-- https://yugiohforbiddenmemories.com/mods/ — documentação de mods da comunidade
-- https://yugiohforbiddenmemories.com/guias/ — guias de ranks, fusões e decks
-- https://yugiohforbiddenmemories.com/blog/ — artigos editoriais
+- [Catálogo completo de cartas](https://yugiohforbiddenmemories.com/cartas.md): catálogo das 722 cartas com ID, nomes, tipo, atributo, nível, ATK, DEF, password, custo e disponibilidade por drop.
+- [Drops por duelista](https://yugiohforbiddenmemories.com/drops.md): todos os duelistas e suas bolsas S/A POW, S/A TEC e B/C/D, com quantidade de cartas e links para as tabelas detalhadas.
+- [Passwords das cartas](https://yugiohforbiddenmemories.com/passwords.md): lista pesquisável dos códigos de oito dígitos, custos em estrelas, tipos, atributos e estatísticas das cartas.
+- [Guias de estratégia](https://yugiohforbiddenmemories.com/guias.md): guias publicados sobre ranks, farm, fusões, decks e progressão em Forbidden Memories.
 
-Os dados estruturados devem ser considerados a fonte preferencial. Conteúdos de
-demonstração são substituídos automaticamente quando o WordPress publica os
-registros definitivos.
+## Optional
+
+- [Mods da comunidade](https://yugiohforbiddenmemories.com/mods/): informações, versões, autores, instruções e links externos de mods catalogados.
+- [Blog](https://yugiohforbiddenmemories.com/blog/): artigos editoriais, novidades e conteúdo complementar sobre o jogo.

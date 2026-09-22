@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Drops de Yu-Gi-Oh! Forbidden Memories: cartas, duelistas e ranks",
   description: "Consulte quem dropa cada carta de Yu-Gi-Oh! Forbidden Memories, compare duelistas e entenda as bolsas S/A POW, S/A TEC e B/C/D.",
   keywords: ["drops Forbidden Memories", "quem dropa cartas Forbidden Memories", "S POW Forbidden Memories", "S TEC Forbidden Memories", "tabela de drops Yu-Gi-Oh"],
-  alternates: { canonical: "/drops/" },
+  alternates: { canonical: "/drops/", types: { "text/markdown": "/drops.md" } },
 };
 
 const absoluteUrl = absoluteSiteUrl;

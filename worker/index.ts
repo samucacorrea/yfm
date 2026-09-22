@@ -41,6 +41,16 @@ function withStaticAssetCache(url: URL, response: Response) {
   });
 }
 
+function withPlainTextContentType(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Type", "text/plain; charset=utf-8");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -54,6 +64,11 @@ const worker = {
     if (LEGACY_HOSTS.has(url.hostname.toLowerCase())) {
       const destination = new URL(`${url.pathname}${url.search}`, CANONICAL_ORIGIN);
       return Response.redirect(destination, 301);
+    }
+
+    if (url.pathname === "/llms.txt") {
+      const asset = await env.ASSETS.fetch(request);
+      if (asset.ok) return withPlainTextContentType(asset);
     }
 
     if (url.pathname === "/_vinext/image") {

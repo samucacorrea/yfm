@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Passwords de Yu-Gi-Oh! Forbidden Memories: lista completa",
   description: "Consulte passwords de cartas de Yu-Gi-Oh! Forbidden Memories com imagem, código, tipo, atributo, ATK, DEF e custo em estrelas.",
   keywords: ["passwords Forbidden Memories", "códigos Yu-Gi-Oh Forbidden Memories", "senha das cartas Forbidden Memories", "password cartas PS1"],
-  alternates: { canonical: "/passwords/" },
+  alternates: { canonical: "/passwords/", types: { "text/markdown": "/passwords.md" } },
 };
 
 const absoluteUrl = absoluteSiteUrl;

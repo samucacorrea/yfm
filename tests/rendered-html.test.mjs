@@ -1,16 +1,32 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render(path = "/", origin = "http://localhost") {
+async function render(path = "/", origin = "http://localhost", assetsFetch = async () => new Response("Not found", { status: 404 })) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${origin}-${path}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
     new Request(new URL(path, origin), { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { ASSETS: { fetch: assetsFetch } },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+test("serves the root llms.txt asset as UTF-8 plain text", async () => {
+  const content = await readFile(new URL("../public/llms.txt", import.meta.url), "utf8");
+  const response = await render("/llms.txt", "http://localhost", async () => new Response(content, {
+    headers: { "Content-Type": "application/octet-stream" },
+  }));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
+  const body = await response.text();
+  assert.match(body, /^# Yu-Gi-Oh! Forbidden Memories\n\n> /);
+  for (const path of ["cartas.md", "drops.md", "passwords.md", "guias.md"]) {
+    assert.match(body, new RegExp(`https://yugiohforbiddenmemories\\.com/${path}`));
+  }
+  assert.match(body, /## Optional/);
+});
 
 test("redirects legacy domains to the canonical .com host with path and query intact", async () => {
   for (const host of [
@@ -47,6 +63,31 @@ test("publishes self-referencing canonicals on indexable pages", async () => {
     const html = await response.text();
     assert.match(html, new RegExp(`<link rel="canonical" href="${canonical}"`));
     assert.doesNotMatch(html, /yugiohforbiddenmemories\.com\.br/i);
+  }
+});
+
+test("publishes clean Markdown alternatives for the primary pages", async () => {
+  for (const [path, heading, canonical] of [
+    ["/cartas.md", "# Catálogo de cartas", "/cartas/"],
+    ["/drops.md", "# Drops de", "/drops/"],
+    ["/passwords.md", "# Passwords de", "/passwords/"],
+    ["/guias.md", "# Guias de", "/guias/"],
+  ]) {
+    const response = await render(path);
+    const markdown = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") ?? "", /^text\/markdown; charset=utf-8$/i);
+    assert.match(response.headers.get("link") ?? "", new RegExp(`<https://yugiohforbiddenmemories\\.com${canonical}>; rel="canonical"`));
+    assert.match(markdown, new RegExp(heading));
+    assert.doesNotMatch(markdown, /<(?:html|head|body|main|nav)\b/i);
+  }
+});
+
+test("advertises Markdown alternatives from the primary HTML pages", async () => {
+  for (const path of ["cartas", "drops", "passwords", "guias"]) {
+    const response = await render(`/${path}/`);
+    const html = await response.text();
+    assert.match(html, new RegExp(`<link rel="alternate" href="https://yugiohforbiddenmemories\\.com/${path}\\.md" type="text/markdown"`));
   }
 });
 
