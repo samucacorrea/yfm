@@ -6,6 +6,7 @@ import { absoluteSiteUrl } from "../../lib/site";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 import { PasswordCard } from "./password-card";
+import { PasswordFilters, passwordSort, sortPasswordCards } from "./password-filters";
 
 export const metadata: Metadata = {
   title: "Passwords de Yu-Gi-Oh! Forbidden Memories: lista completa",
@@ -16,16 +17,23 @@ export const metadata: Metadata = {
 
 const absoluteUrl = absoluteSiteUrl;
 
-export default async function PasswordsPage({ searchParams }: { searchParams: Promise<{ busca?: string }> }) {
+export default async function PasswordsPage({ searchParams }: { searchParams: Promise<{ busca?: string; tipo?: string; ordem?: string }> }) {
   const cards = await getCards();
-  const query = ((await searchParams).busca || "").trim();
+  const params = await searchParams;
+  const query = (params.busca || "").trim();
   const normalizedQuery = query.toLocaleLowerCase("pt-BR");
+  const selectedType = taxonomySlug(params.tipo || "");
+  const order = passwordSort(params.ordem);
   const passwordCards = cards.filter((card) => card.password);
-  const filtered = normalizedQuery
-    ? passwordCards.filter((card) => [card.name, card.namePt, card.type, card.attribute, card.password, card.id]
-      .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(normalizedQuery)))
-    : passwordCards;
+  const matchedCards = passwordCards.filter((card) => {
+    const matchesQuery = !normalizedQuery || [card.name, card.namePt, card.type, card.attribute, card.password, card.id]
+      .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(normalizedQuery));
+    const matchesType = !selectedType || taxonomySlug(card.type) === selectedType;
+    return matchesQuery && matchesType;
+  });
+  const filtered = sortPasswordCards(matchedCards, order);
   const types = [...new Set(passwordCards.map((card) => card.type))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const typeOptions = types.map((name) => ({ name, count: passwordCards.filter((card) => card.type === name).length }));
   const eightDigitPasswords = passwordCards.filter((card) => /^\d{8}$/.test(card.password)).length;
   const maximumPrice = Math.max(0, ...passwordCards.map((card) => card.price));
   const faq = [
@@ -118,15 +126,8 @@ export default async function PasswordsPage({ searchParams }: { searchParams: Pr
     </div></section>
 
     <section className="portal-section password-catalog-section" id="lista"><div className="shell">
-      <div className="password-search-panel">
-        <form className="password-search" action="/passwords/" method="get">
-          <label className="sr-only" htmlFor="password-query">Buscar password</label>
-          <input id="password-query" name="busca" defaultValue={query} placeholder="Nome, ID, password, tipo ou atributo..." />
-          <button type="submit">Buscar</button>
-        </form>
-        <div className="filter-chips" aria-label="Filtrar passwords por tipo"><a href="/passwords/">Todas</a>{types.map((type) => <a href={`/passwords/${taxonomySlug(type)}/`} key={type}>{type}</a>)}</div>
-        <p className="password-search-hint">A busca é processada no servidor e encontrou <strong>{filtered.length}</strong> {filtered.length === 1 ? "carta" : "cartas"}.</p>
-      </div>
+      <PasswordFilters types={typeOptions} total={passwordCards.length} query={query} order={order} selectedType={selectedType} />
+      <p className="password-search-hint password-results-hint">A busca é processada no servidor e encontrou <strong>{filtered.length}</strong> {filtered.length === 1 ? "carta" : "cartas"}. {(query || selectedType || order !== "nome-asc") && <a href="/passwords/">Limpar filtros</a>}</p>
       <PortalHeading eyebrow="CATÁLOGO VISUAL" title={`${filtered.length} passwords`} accent={query ? `para “${query}”` : "catalogados"} />
       {filtered.length > 0
         ? <div className="password-visual-grid">{filtered.map((card) => <PasswordCard card={card} key={card.slug} />)}</div>

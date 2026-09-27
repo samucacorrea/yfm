@@ -7,8 +7,9 @@ import { absoluteSiteUrl } from "../../../lib/site";
 import { taxonomySlug } from "../../../lib/wordpress-data";
 import { PortalHeading, PortalPage, SchemaScript } from "../../components/portal-components";
 import { PasswordCard } from "../password-card";
+import { PasswordFilters, passwordSort, sortPasswordCards } from "../password-filters";
 
-type Props = { params: Promise<{ tipo: string }> };
+type Props = { params: Promise<{ tipo: string }>; searchParams: Promise<{ busca?: string; ordem?: string }> };
 const absoluteUrl = absoluteSiteUrl;
 
 export function generateStaticParams() {
@@ -25,15 +26,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title, description, alternates: { canonical: `/passwords/${canonicalSlug}/` }, openGraph: { title, description }, twitter: { title, description } };
 }
 
-export default async function PasswordTypePage({ params }: Props) {
+export default async function PasswordTypePage({ params, searchParams }: Props) {
   const raw = (await params).tipo;
+  const queryParams = await searchParams;
+  const query = (queryParams.busca || "").trim();
+  const normalizedQuery = query.toLocaleLowerCase("pt-BR");
+  const order = passwordSort(queryParams.ordem);
   const cards = await getCards();
   const passwordCards = cards.filter((card) => card.password);
-  const filtered = passwordCards.filter((card) => taxonomySlug(card.type) === taxonomySlug(raw));
-  const label = filtered[0]?.type || raw;
+  const categoryCards = passwordCards.filter((card) => taxonomySlug(card.type) === taxonomySlug(raw));
+  const filtered = sortPasswordCards(categoryCards.filter((card) => !normalizedQuery || [card.name, card.namePt, card.attribute, card.password, card.id]
+    .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(normalizedQuery))), order);
+  const label = categoryCards[0]?.type || raw;
   const types = [...new Set(passwordCards.map((card) => card.type))].sort((a, b) => a.localeCompare(b, "pt-BR"));
-  const averageAtk = filtered.length ? Math.round(filtered.reduce((total, card) => total + card.atk, 0) / filtered.length) : 0;
-  const maximumAtk = filtered.length ? Math.max(...filtered.map((card) => card.atk)) : 0;
+  const typeOptions = types.map((name) => ({ name, count: passwordCards.filter((card) => card.type === name).length }));
+  const averageAtk = categoryCards.length ? Math.round(categoryCards.reduce((total, card) => total + card.atk, 0) / categoryCards.length) : 0;
+  const maximumAtk = categoryCards.length ? Math.max(...categoryCards.map((card) => card.atk)) : 0;
   const pageUrl = absoluteUrl(`/passwords/${taxonomySlug(label)}/`);
   const faq = [
     { q: `Onde encontrar passwords de cartas ${label}?`, a: `Esta página reúne os códigos de todas as cartas ${label} recebidas do catálogo, acompanhados por imagem, atributo, ATK, DEF e custo em estrelas.` },
@@ -108,9 +116,9 @@ export default async function PasswordTypePage({ params }: Props) {
     <nav className="password-crumb shell" aria-label="Navegação estrutural"><a href="/">Início</a><span>›</span><a href="/passwords/">Passwords</a><span>›</span><strong>{label}</strong></nav>
 
     <section className="password-answer"><div className="shell password-answer-grid">
-      <article className="password-answer-box"><small>RESPOSTA RÁPIDA</small><h2>Passwords de cartas {label}</h2><p>Foram encontradas <strong>{filtered.length} cartas</strong> do tipo {label} com password catalogado. Use o código de oito dígitos no menu Password e confira o custo antes de comprar.</p></article>
+      <article className="password-answer-box"><small>RESPOSTA RÁPIDA</small><h2>Passwords de cartas {label}</h2><p>Foram encontradas <strong>{categoryCards.length} cartas</strong> do tipo {label} com password catalogado. Use o código de oito dígitos no menu Password e confira o custo antes de comprar.</p></article>
       <dl className="password-metrics">
-        <div><dt>Cartas do tipo</dt><dd>{filtered.length}</dd></div>
+        <div><dt>Cartas do tipo</dt><dd>{categoryCards.length}</dd></div>
         <div><dt>ATK médio</dt><dd>{averageAtk}</dd></div>
         <div><dt>Maior ATK</dt><dd>{maximumAtk}</dd></div>
         <div><dt>Tipos disponíveis</dt><dd>{types.length}</dd></div>
@@ -118,7 +126,8 @@ export default async function PasswordTypePage({ params }: Props) {
     </div></section>
 
     <section className="portal-section password-catalog-section" id="lista"><div className="shell">
-      <div className="password-search-panel"><div className="filter-chips" aria-label="Trocar tipo de carta"><a href="/passwords/">Todas</a>{types.map((type) => <a aria-current={taxonomySlug(type) === taxonomySlug(raw) ? "page" : undefined} href={`/passwords/${taxonomySlug(type)}/`} key={type}>{type}</a>)}</div><p className="password-search-hint">Filtro atual: <strong>{label}</strong>.</p></div>
+      <PasswordFilters types={typeOptions} total={passwordCards.length} query={query} order={order} selectedType={taxonomySlug(label)} action={`/passwords/${taxonomySlug(label)}/`} allowTypeSelect={false} />
+      <p className="password-search-hint password-results-hint">Filtro atual: <strong>{label}</strong>. {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}. {(query || order !== "nome-asc") && <a href={`/passwords/${taxonomySlug(label)}/`}>Limpar busca e ordem</a>}</p>
       <PortalHeading eyebrow="CATÁLOGO VISUAL" title={`${filtered.length} cartas`} accent="encontradas" />
       <p className="password-type-intro">Cada card combina a arte oficial recebida do WordPress com password, atributo, ATK, DEF e custo em estrelas. Abra a ficha para consultar também drops e detalhes completos.</p>
       {filtered.length > 0 ? <div className="password-visual-grid">{filtered.map((card) => <PasswordCard card={card} key={card.slug} />)}</div> : <div className="portal-empty">Nenhuma carta deste tipo possui password catalogado.</div>}

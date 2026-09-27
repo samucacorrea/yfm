@@ -221,7 +221,9 @@ test("renders the visual password catalog with answer-first content and complete
   assert.match(html, /class="[^"]*password-answer-grid/);
   assert.match(html, /class="password-visual-grid"/);
   assert.match(html, /class="password-visual-card"/);
-  assert.match(html, /Nome, ID, password, tipo ou atributo/);
+  assert.match(html, /Nome, ID, password ou atributo/);
+  assert.match(html, /name="tipo"/);
+  assert.match(html, /Maior custo em estrelas/);
   assert.match(html, /Guia de passwords/);
   assert.match(html, /class="password-faq-list"/);
   assert.match(html, /"@type":"CollectionPage"/);
@@ -229,6 +231,26 @@ test("renders the visual password catalog with answer-first content and complete
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /"creator":\{"@type":"Organization","name":"Yu-Gi-Oh! Forbidden Memories"/);
   assert.match(html, /"license":"https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"/);
+});
+
+test("renders the accessible mobile navigation on every shared header", async () => {
+  const response = await render("/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /<details class="mobile-menu">/);
+  assert.match(html, /<summary><span class="mobile-menu-icon"/);
+  assert.match(html, /<nav aria-label="Navega(?:Ã§Ã£|çã)o mobile">/);
+  assert.match(html, /href="\/passwords\/"><b>04<\/b> Passwords/);
+});
+
+test("applies server-rendered password ordering", async () => {
+  const response = await render("/passwords/?tipo=dragao&ordem=atk-desc");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /<option value="dragao" selected="">Dragon/);
+  assert.match(html, /<option value="atk-desc" selected="">Maior ATK<\/option>/);
+  assert.ok(html.indexOf('href="/cartas/meteor-b-dragon/"') < html.indexOf('href="/cartas/blue-eyes-white-dragon/"'));
+  assert.doesNotMatch(html, /href="\/cartas\/dark-magician\/"/);
 });
 
 test("renders visual type-specific password pages with a canonical URL", async () => {
