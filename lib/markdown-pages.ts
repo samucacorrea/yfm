@@ -16,7 +16,7 @@ function cleanText(value: string | number | undefined) {
     .replace(/&#8212;/g, "—")
     .replace(/\s+/g, " ")
     .trim()
-    .replace(/([\\`*_\[\]|])/g, "\\$1");
+    .replace(/([\\`*_\x5b\]|])/g, "\\$1");
 }
 
 function documentResponse(content: string, canonicalPath: string) {

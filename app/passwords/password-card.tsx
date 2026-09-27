@@ -1,8 +1,9 @@
 import type { CardRecord } from "../../lib/catalog";
 import { CardVisual } from "../components/card-visual";
+import { formatPassword } from "./password-data";
 
 export function PasswordCard({ card }: { card: CardRecord }) {
-  const formattedPassword = card.password.replace(/(\d{4})(?=\d)/, "$1 ");
+  const formattedPassword = formatPassword(card.password);
 
   return <article className="password-visual-card">
     <a className="password-visual-art" href={`/cartas/${card.slug}/`} aria-label={`Abrir ficha de ${card.name}`}>
@@ -10,7 +11,7 @@ export function PasswordCard({ card }: { card: CardRecord }) {
     </a>
     <div className="password-visual-copy">
       <small>#{String(card.id).padStart(3, "0")} · {card.attribute}</small>
-      <h2><a href={`/cartas/${card.slug}/`}>{card.name}</a></h2>
+      <h3><a href={`/cartas/${card.slug}/`}>{card.name}</a></h3>
       {card.namePt && card.namePt !== card.name && <p className="password-card-translation">{card.namePt}</p>}
       <div className="password-code-block">
         <span>Password</span>

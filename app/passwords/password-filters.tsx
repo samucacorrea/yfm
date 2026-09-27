@@ -1,30 +1,30 @@
 import { taxonomySlug } from "../../lib/wordpress-data";
 
-export type PasswordSort = "nome-asc" | "custo-desc" | "custo-asc" | "atk-desc" | "def-desc";
+export type PasswordSort = "numero-asc" | "custo-desc" | "custo-asc" | "atk-desc";
 export type PasswordTypeOption = { name: string; count: number };
 
-export function sortPasswordCards<T extends { name: string; price: number; atk: number; def: number }>(cards: T[], order: PasswordSort) {
+export function sortPasswordCards<T extends { id: number; name: string; price: number; atk: number }>(cards: T[], order: PasswordSort) {
   return [...cards].sort((a, b) => {
     if (order === "custo-desc") return b.price - a.price || a.name.localeCompare(b.name, "pt-BR");
     if (order === "custo-asc") return a.price - b.price || a.name.localeCompare(b.name, "pt-BR");
     if (order === "atk-desc") return b.atk - a.atk || a.name.localeCompare(b.name, "pt-BR");
-    if (order === "def-desc") return b.def - a.def || a.name.localeCompare(b.name, "pt-BR");
-    return a.name.localeCompare(b.name, "pt-BR");
+    return a.id - b.id || a.name.localeCompare(b.name, "pt-BR");
   });
 }
 
 export function passwordSort(value?: string): PasswordSort {
-  return (["nome-asc", "custo-desc", "custo-asc", "atk-desc", "def-desc"] as PasswordSort[]).includes(value as PasswordSort)
+  return (["numero-asc", "custo-desc", "custo-asc", "atk-desc"] as PasswordSort[]).includes(value as PasswordSort)
     ? value as PasswordSort
-    : "nome-asc";
+    : "numero-asc";
 }
 
 export function PasswordFilters({
   types,
   total,
   query = "",
-  order = "nome-asc",
+  order = "numero-asc",
   selectedType = "",
+  purchasableOnly = false,
   action = "/passwords/",
   allowTypeSelect = true,
 }: {
@@ -33,6 +33,7 @@ export function PasswordFilters({
   query?: string;
   order?: PasswordSort;
   selectedType?: string;
+  purchasableOnly?: boolean;
   action?: string;
   allowTypeSelect?: boolean;
 }) {
@@ -40,7 +41,8 @@ export function PasswordFilters({
     <form className={`password-filter-form${allowTypeSelect ? " has-type" : ""}`} action={action} method="get">
       <label className="password-filter-search"><span>Buscar carta ou código</span><input name="busca" defaultValue={query} placeholder="Nome, ID, password ou atributo..." /></label>
       {allowTypeSelect && <label><span>Tipo de carta</span><select name="tipo" defaultValue={selectedType}><option value="">Todos os tipos</option>{types.map((type) => <option value={taxonomySlug(type.name)} key={type.name}>{type.name} ({type.count})</option>)}</select></label>}
-      <label><span>Ordenar resultados</span><select name="ordem" defaultValue={order}><option value="nome-asc">Nome (A–Z)</option><option value="custo-desc">Maior custo em estrelas</option><option value="custo-asc">Menor custo em estrelas</option><option value="atk-desc">Maior ATK</option><option value="def-desc">Maior DEF</option></select></label>
+      <label><span>Ordenar resultados</span><select name="ordem" defaultValue={order}><option value="numero-asc">Número da carta</option><option value="custo-asc">Menor custo em estrelas</option><option value="custo-desc">Maior custo em estrelas</option><option value="atk-desc">Maior ATK</option></select></label>
+      <label className="password-buyable-toggle"><input type="checkbox" name="compraveis" value="1" defaultChecked={purchasableOnly} /><span>Somente compráveis</span></label>
       <button type="submit"><span aria-hidden="true">⌕</span> Aplicar filtros</button>
     </form>
     <div className="password-type-filter" aria-label="Filtrar passwords por tipo">

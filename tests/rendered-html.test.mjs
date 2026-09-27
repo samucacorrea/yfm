@@ -154,7 +154,7 @@ for (const path of ["/cartas/", "/cartas/tipo/dragao/", "/drops/", "/drops/heish
 const portalRoutes = [
   ["/drops/seto-3rd/", /<h1>Seto 3rd<\/h1>/i, /"@type":"FAQPage"/],
   ["/drops/heishin/s-pow/", /<h1>Heishin<\/h1>/i, /"@type":"ItemList"/],
-  ["/passwords/dragon/", /C.digos de.*Drag/i, /"@type":"ItemList"/],
+  ["/passwords/dragon/", /Passwords de cartas.*Drag/i, /"@type":"ItemList"/],
 ];
 
 for (const [path, contentPattern, schemaPattern] of portalRoutes) {
@@ -218,19 +218,52 @@ test("renders the visual password catalog with answer-first content and complete
   const response = await render("/passwords/");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.match(html, /class="[^"]*password-answer-grid/);
+  assert.match(html, /class="password-answer-box"/);
+  assert.match(html, /<title>Passwords Yu-Gi-Oh! Forbidden Memories: todos os c.digos/);
+  assert.match(html, /property="og:title" content="Passwords Yu-Gi-Oh! Forbidden Memories: todos os c.digos"/);
+  assert.match(html, /property="og:url" content="https:\/\/yugiohforbiddenmemories\.com\/passwords\/"/);
+  assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /Todos os passwords de Yu-Gi-Oh! Forbidden Memories \(PS1\).*Atualizado em 2026/);
+  assert.match(html, /Passwords mais buscados/);
   assert.match(html, /class="password-visual-grid"/);
   assert.match(html, /class="password-visual-card"/);
   assert.match(html, /Nome, ID, password ou atributo/);
   assert.match(html, /name="tipo"/);
   assert.match(html, /Maior custo em estrelas/);
-  assert.match(html, /Guia de passwords/);
+  assert.match(html, /Somente compráveis/);
+  assert.match(html, /Guia completo de passwords/);
+  assert.match(html, /Qual o password de estrelas infinitas/);
+  assert.match(html, /Por que são .* passwords e não .* cartas/);
+  assert.match(html, /O que significa custo de 999\.999 estrelas/);
+  assert.match(html, /Quais as melhores cartas baratas/);
   assert.match(html, /class="password-faq-list"/);
   assert.match(html, /"@type":"CollectionPage"/);
   assert.match(html, /"@type":"Dataset"/);
   assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"@type":"HowTo"/);
+  assert.match(html, /"dateModified":"2026-09-27"/);
+  assert.match(html, /"author":\{"@type":"Person","name":"Samuel"/);
+  assert.match(html, /"publisher":\{"@type":"Organization"/);
   assert.match(html, /"creator":\{"@type":"Organization","name":"Yu-Gi-Oh! Forbidden Memories"/);
   assert.match(html, /"license":"https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/"/);
+  assert.equal((html.match(/<h1[ >]/g) || []).length, 1);
+  assert.doesNotMatch(html, /GUIA COMPLETO · SEO · AEO · GEO|CONTEÚDO SEO · AEO · GEO/);
+  assert.doesNotMatch(html, /<h2><a href="\/cartas\//);
+
+  const schemaMatch = html.match(/<script type="application\/ld\+json">([^]*?)<\/script>/);
+  assert.ok(schemaMatch);
+  const graph = JSON.parse(schemaMatch[1])["@graph"];
+  const faqSchema = graph.find((item) => item["@type"] === "FAQPage");
+  const faqSection = html.slice(html.indexOf('<section class="password-faq"'), html.indexOf('<script type="application/ld+json">'));
+  const visibleAnswers = [...faqSection.matchAll(/<details[^>]*>[^]*?<p>([^]*?)<\/p>[^]*?<\/details>/g)]
+    .map((match) => match[1].replace(/<[^>]+>/g, " ").replace(/<!--.*?-->/g, "").replace(/\s+/g, " ").trim());
+  assert.equal(visibleAnswers.length, 8);
+  assert.equal(faqSchema.mainEntity.length, 8);
+  assert.deepEqual(visibleAnswers, faqSchema.mainEntity.map((item) => item.acceptedAnswer.text));
+  for (const answer of visibleAnswers) {
+    const wordCount = answer.split(/\s+/).length;
+    assert.ok(wordCount >= 40 && wordCount <= 60, `FAQ answer has ${wordCount} words`);
+  }
 });
 
 test("renders the accessible mobile navigation on every shared header", async () => {
@@ -249,8 +282,17 @@ test("applies server-rendered password ordering", async () => {
   assert.equal(response.status, 200);
   assert.match(html, /<option value="dragao" selected="">Dragon/);
   assert.match(html, /<option value="atk-desc" selected="">Maior ATK<\/option>/);
-  assert.ok(html.indexOf('href="/cartas/meteor-b-dragon/"') < html.indexOf('href="/cartas/blue-eyes-white-dragon/"'));
-  assert.doesNotMatch(html, /href="\/cartas\/dark-magician\/"/);
+  const catalog = html.slice(html.indexOf('<div class="password-catalog-heading">'), html.indexOf('<article class="password-guide'));
+  assert.ok(catalog.indexOf('href="/cartas/meteor-b-dragon/"') < catalog.indexOf('href="/cartas/blue-eyes-white-dragon/"'));
+  assert.doesNotMatch(catalog, /href="\/cartas\/dark-magician\/"/);
+});
+
+test("keeps filtered password URLs canonical to the clean catalog", async () => {
+  const response = await render("/passwords/?ordem=custo-asc&compraveis=1");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /rel="canonical" href="https:\/\/yugiohforbiddenmemories\.com\/passwords\/"/);
+  assert.match(html, /name="compraveis" checked="" value="1"/);
 });
 
 test("renders visual type-specific password pages with a canonical URL", async () => {
