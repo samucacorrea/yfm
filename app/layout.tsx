@@ -74,9 +74,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: [{ url: "/favicon.png", type: "image/png" }],
-      shortcut: "/favicon.png",
-      apple: "/favicon.png",
+      icon: [
+        { url: "/favicon.ico", type: "image/x-icon" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     },
     openGraph: { title, description, siteName: "Yu-Gi-Oh! Forbidden Memories", images: [{ url: image, width: 1730, height: 909, alt: "Yu-Gi-Oh! Forbidden Memories — Todas as cartas, todos os drops" }] },
     twitter: { card: "summary_large_image", title, description, images: [image] },

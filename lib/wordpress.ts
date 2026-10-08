@@ -31,6 +31,7 @@ export type WordPressPost = WordPressPostRaw & {
   featuredImageAlt?: string;
   authorName?: string;
   customSchema?: string;
+  tags: string[];
 };
 
 const stripHtml = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#8217;/g, "’").replace(/&#8211;/g, "–").replace(/&#8212;/g, "—").replace(/\s+/g, " ").trim();
@@ -50,6 +51,7 @@ function normalizePost(post: WordPressPostRaw): WordPressPost {
     featuredImageAlt: media?.alt_text || stripHtml(post.title.rendered),
     authorName: post._embedded?.author?.[0]?.name,
     customSchema: acfSchema || metaSchema || undefined,
+    tags: terms.filter((term) => term.taxonomy === "post_tag").map((term) => stripHtml(term.name)),
   };
 }
 

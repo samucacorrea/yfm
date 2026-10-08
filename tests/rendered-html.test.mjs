@@ -104,8 +104,11 @@ test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery p
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /action="\/cartas\/"/);
   assert.match(html, /<meta name="theme-color" content="#08080A"/i);
-  assert.match(html, /<link rel="icon" href="\/favicon\.png" type="image\/png"/i);
-  assert.match(html, /<link rel="apple-touch-icon" href="\/favicon\.png"/i);
+  assert.match(html, /<link rel="shortcut icon" href="\/favicon\.ico"/i);
+  assert.match(html, /<link rel="icon" href="\/favicon\.ico" type="image\/x-icon"/i);
+  assert.match(html, /<link rel="icon" href="\/favicon-32x32\.png" type="image\/png" sizes="32x32"/i);
+  assert.match(html, /<link rel="icon" href="\/favicon-16x16\.png" type="image\/png" sizes="16x16"/i);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png" type="image\/png" sizes="180x180"/i);
   assert.match(html, /srcSet="\/bg-480\.webp 480w, \/bg-768\.webp 768w, \/bg-1200\.webp 1200w, \/bg\.webp 1717w"/i);
   assert.match(html, /sizes="100vw"/i);
   assert.match(html, /id="google-fonts-stylesheet" rel="preload" as="style"/i);
@@ -115,6 +118,9 @@ test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery p
   assert.match(html, /Explorar <span>mais/);
   assert.match(html, /Espaço publicitário/);
   assert.match(html, /Ver todos os posts/);
+  assert.match(html, /class="mobile-menu"/);
+  assert.match(html, /aria-label="Menu de navegação"/);
+  assert.match(html, /class="mobile-menu-featured"[\s\S]*href="\/passwords\/"[\s\S]*href="\/mods\/"/);
   for (const href of [
     "/cartas/dark-magician/",
     "/cartas/blue-eyes-white-dragon/",
@@ -174,6 +180,63 @@ test("does not inject local fallback posts, guides or mods", async () => {
     const response = await render(path);
     const html = await response.text();
     assert.doesNotMatch(html, /cartas-mais-raras|como-conseguir-s-pow|mod-15-drop-x15/i);
+  }
+});
+
+test("renders the responsive WordPress post layout with navigation and related content", async () => {
+  const originalFetch = globalThis.fetch;
+  const currentPost = {
+    id: 201,
+    slug: "como-jogar",
+    date: "2026-09-12T12:00:00",
+    modified: "2026-09-13T12:00:00",
+    title: { rendered: "Como jogar Yu-Gi-Oh! Forbidden Memories no celular" },
+    excerpt: { rendered: "<p>Aprenda passo a passo com os melhores emuladores.</p>" },
+    content: { rendered: "<h2>Introdução</h2><p>Conteúdo introdutório do guia.</p><h2>O que você vai precisar</h2><p>Separe o jogo e um emulador.</p><h3>Emulador recomendado</h3><p>Configure os controles.</p>" },
+    link: "https://wp.yugifbm.com/como-jogar/",
+    _embedded: {
+      "wp:featuredmedia": [{ source_url: "https://wp.yugifbm.com/celular.webp", alt_text: "Jogo no celular" }],
+      "wp:term": [
+        [{ id: 1, name: "Blog", slug: "blog", taxonomy: "category" }],
+        [{ id: 2, name: "Mobile", slug: "mobile", taxonomy: "post_tag" }],
+      ],
+      author: [{ name: "ZaniLab" }],
+    },
+  };
+  const relatedPost = {
+    ...currentPost,
+    id: 202,
+    slug: "melhores-fusoes",
+    title: { rendered: "Melhores fusões do jogo" },
+    excerpt: { rendered: "<p>Veja as melhores combinações.</p>" },
+    link: "https://wp.yugifbm.com/melhores-fusoes/",
+  };
+
+  globalThis.fetch = async (input, init) => {
+    const url = String(input instanceof Request ? input.url : input);
+    if (url.includes("/wp-json/wp/v2/posts?slug=como-jogar")) return Response.json([currentPost]);
+    if (url.includes("/wp-json/wp/v2/posts?per_page=8")) return Response.json([currentPost, relatedPost]);
+    return originalFetch(input, init);
+  };
+
+  try {
+    const response = await render("/blog/como-jogar/");
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, /class="blog-post-page"/);
+    assert.match(html, /class="blog-post-shell blog-post-layout"/);
+    assert.match(html, /<h1>Como jogar Yu-Gi-Oh! Forbidden Memories no celular<\/h1>/);
+    assert.match(html, /href="#introducao"/);
+    assert.match(html, /<h2 id="introducao">Introdução<\/h2>/);
+    assert.match(html, /class="blog-post-left"/);
+    assert.match(html, /class="blog-post-right"/);
+    assert.match(html, /Posts relacionados/);
+    assert.match(html, /href="\/blog\/melhores-fusoes\/"/);
+    assert.match(html, /Mobile/);
+    assert.match(html, /min de leitura/);
+    assert.match(html, /"@type":"BlogPosting"/);
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
 
@@ -271,9 +334,15 @@ test("renders the accessible mobile navigation on every shared header", async ()
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /<details class="mobile-menu">/);
-  assert.match(html, /<summary><span class="mobile-menu-icon"/);
-  assert.match(html, /<nav aria-label="Navega(?:Ã§Ã£|çã)o mobile">/);
-  assert.match(html, /href="\/passwords\/"><b>04<\/b> Passwords/);
+  assert.match(html, /<summary aria-label="Menu de navegação"><span aria-hidden="true" class="mobile-menu-icon"/);
+  assert.match(html, /<nav class="mobile-menu-panel" aria-label="Navega(?:Ã§Ã£|çã)o mobile">/);
+  assert.match(html, /class="mobile-menu-featured"[\s\S]*href="\/passwords\/"[\s\S]*href="\/mods\/"/);
+
+  const cardResponse = await render("/cartas/red-eyes-b-dragon/");
+  const cardHtml = await cardResponse.text();
+  assert.equal(cardResponse.status, 200);
+  assert.match(cardHtml, /class="exact-header"[\s\S]*<details class="mobile-menu">/);
+  assert.match(cardHtml, /class="mobile-menu-featured"[\s\S]*href="\/passwords\/"[\s\S]*href="\/mods\/"/);
 });
 
 test("applies server-rendered password ordering", async () => {
