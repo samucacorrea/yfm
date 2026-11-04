@@ -101,7 +101,7 @@ export default async function ModPage({ params }: Props) {
             {mod.id ? <div className="id"><b>#{mod.id}</b><span>ID do mod no catálogo</span></div> : null}
             {mod.author && <><div className="aside-h">Autor</div><p>{mod.author}</p></>}
             {mod.editedFiles?.length ? <><div className="aside-h">Arquivos editados</div><ul>{mod.editedFiles.map((file) => <li key={file}>{file}</li>)}</ul></> : null}
-            {mod.sourceUrl && <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer">Acessar download ↗</a>}
+            {mod.sourceUrl && <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="mod_download_click" data-analytics-content-type="mod" data-analytics-content-id={mod.slug} data-analytics-placement="sidebar">Acessar download ↗</a>}
           </aside>
         </article>
 
@@ -119,7 +119,7 @@ export default async function ModPage({ params }: Props) {
 
         {mod.sourceUrl && <section id="download" className="mod-download-section">
           <div><small>LINK INFORMADO NO WORDPRESS</small><h2>Download do <span>mod</span></h2><p>{mod.name}</p></div>
-          <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer">Abrir página de download ↗</a>
+          <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="mod_download_click" data-analytics-content-type="mod" data-analytics-content-id={mod.slug} data-analytics-placement="download_section">Abrir página de download ↗</a>
         </section>}
 
         {mod.faq.length > 0 && <section id="faq" className="faq-exact mod-faq">

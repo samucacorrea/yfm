@@ -1,8 +1,9 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { CardRecord } from "../../lib/catalog";
 import type { PoolCard } from "../../lib/portal-content";
+import { trackDynamicSearch } from "./analytics";
 import { DropCardGrid } from "./drop-card-grid";
 
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
@@ -27,6 +28,16 @@ export function DuelistDropCatalog({ items, cards, titleSuffix }: { items: PoolC
   }, [cardsBySlug, deferredQuery, items, type]);
   const hasFilters = query.length > 0 || type !== "todos";
   const clear = () => { setQuery(""); setType("todos"); };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => trackDynamicSearch({
+      searchTerm: deferredQuery,
+      searchContext: "drop_pool_catalog",
+      resultCount: filtered.length,
+      filterType: type === "todos" ? undefined : type,
+    }), 700);
+    return () => window.clearTimeout(timer);
+  }, [deferredQuery, filtered.length, type]);
 
   return <>
     <header className="fm-drop-heading"><div><p>Banco de drops</p><h2>Todas as cartas que ele dropa{titleSuffix}</h2><span aria-live="polite">{filtered.length} {filtered.length === 1 ? "carta encontrada" : "cartas encontradas"}</span></div></header>

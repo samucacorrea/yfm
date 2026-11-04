@@ -151,7 +151,7 @@ export default async function PasswordTypePage({ params, searchParams }: Props) 
       <dl className="password-metrics"><div><dt>Cartas do tipo</dt><dd>{categoryCards.length}</dd></div><div><dt>ATK médio</dt><dd>{averageAtk}</dd></div><div><dt>Maior ATK</dt><dd>{maximumAtk}</dd></div><div><dt>Compráveis</dt><dd>{categoryCards.filter(isPurchasable).length}</dd></div></dl>
     </div></section>
 
-    <section className="portal-section password-catalog-section" id="lista"><div className="shell">
+    <section className="portal-section password-catalog-section" id="lista" data-search-results-count={filtered.length} data-search-context="password_catalog"><div className="shell">
       <PasswordFilters types={typeOptions} total={passwordCards.length} query={query} order={order} selectedType={canonicalSlug} purchasableOnly={purchasableOnly} action={`/passwords/${canonicalSlug}/`} allowTypeSelect={false} />
       <p className="password-search-hint password-results-hint">Filtro atual: <strong>{typeSearchName}</strong>. {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}. Exibindo {visibleCards.length} na página {currentPage}. {(query || purchasableOnly || order !== "numero-asc") && <a href={`/passwords/${canonicalSlug}/`}>Limpar busca e ordem</a>}</p>
       <div className="password-catalog-heading"><small>CATÁLOGO VISUAL</small><p className="password-section-title">{filtered.length} cartas encontradas</p></div>

@@ -101,7 +101,7 @@ export default async function Home() {
         <p className="template-kicker"><span>A MAIOR REFERÊNCIA DO</span><b>YU-GI-OH! FORBIDDEN MEMORIES</b></p>
         <h1>Yu-Gi-Oh! Forbidden Memories<br/><span>cartas, fusões, drops e passwords</span></h1>
         <p>Busque de forma reversa e descubra quem dropa, onde farmar e os passwords de cada carta!</p>
-        <form className="template-search" action="/cartas/" method="get" id="buscar"><label className="sr-only" htmlFor="home-search">Buscar</label><i/><input id="home-search" name="busca" placeholder="Busque uma carta, personagem ou tipo..."/><button>Buscar</button></form>
+        <form className="template-search" action="/cartas/" method="get" id="buscar" data-search-context="home_hero"><label className="sr-only" htmlFor="home-search">Buscar</label><i/><input id="home-search" name="busca" placeholder="Busque uma carta, personagem ou tipo..."/><button>Buscar</button></form>
         <small className="examples-label">Exemplos populares</small>
         <div className="template-chips"><a href="/cartas/tipo/dragao/">carta de dragão</a><a href="/cartas/megamorph/">quem dropa Megamorph</a><a href="/cartas/dark-magician/">password Dark Magician</a><a href="/drops/heishin/">drops do Heishin</a><a href="/guias/">estrelas infinitas</a></div>
       </div>

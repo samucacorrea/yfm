@@ -38,7 +38,7 @@ export function PasswordFilters({
   allowTypeSelect?: boolean;
 }) {
   return <div className="password-search-panel">
-    <form className={`password-filter-form${allowTypeSelect ? " has-type" : ""}`} action={action} method="get">
+    <form className={`password-filter-form${allowTypeSelect ? " has-type" : ""}`} action={action} method="get" data-search-context="password_catalog">
       <label className="password-filter-search"><span>Buscar carta ou código</span><input name="busca" defaultValue={query} placeholder="Nome, ID, password ou atributo..." /></label>
       {allowTypeSelect && <label><span>Tipo de carta</span><select name="tipo" defaultValue={selectedType}><option value="">Todos os tipos</option>{types.map((type) => <option value={taxonomySlug(type.name)} key={type.name}>{type.name} ({type.count})</option>)}</select></label>}
       <label><span>Ordenar resultados</span><select name="ordem" defaultValue={order}><option value="numero-asc">Número da carta</option><option value="custo-asc">Menor custo em estrelas</option><option value="custo-desc">Maior custo em estrelas</option><option value="atk-desc">Maior ATK</option></select></label>

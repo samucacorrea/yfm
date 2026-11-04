@@ -16,20 +16,64 @@ function googleTagManagerBootstrap(containerId: string) {
     window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js", "gtm.containerId": "${containerId}" });
 
     let lastLocation = "";
+    let lastSearchResults = "";
+    let searchAfterDomReady = false;
+    const cleanParams = (params) => Object.fromEntries(
+      Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== "")
+    );
+    const sendAnalyticsEvent = (event, params = {}) => {
+      if (!/^[a-z][a-z0-9_]{0,39}$/.test(event)) return;
+      window.dataLayer.push(cleanParams({ event, ...params }));
+    };
+
     const sendPageView = () => {
       const pageLocation = window.location.href;
       if (pageLocation === lastLocation) return;
 
       lastLocation = pageLocation;
-      window.dataLayer.push({
-        event: "page_view",
+      sendAnalyticsEvent("page_view", {
         page_location: pageLocation,
         page_path: window.location.pathname + window.location.search,
         page_title: document.title,
       });
     };
 
-    const schedulePageView = () => window.requestAnimationFrame(sendPageView);
+    const sendSearchResults = () => {
+      const url = new URL(window.location.href);
+      const searchTerm = (url.searchParams.get("busca") || "").trim();
+      if (!searchTerm) return;
+
+      const resultElement = document.querySelector("[data-search-results-count]");
+      const resultCount = resultElement ? Number(resultElement.getAttribute("data-search-results-count")) : undefined;
+      const searchContext = resultElement?.getAttribute("data-search-context") || url.pathname;
+      const eventKey = [url.pathname, searchTerm, url.searchParams.get("tipo"), url.searchParams.get("ordem"), url.searchParams.get("compraveis")].join("|");
+      if (eventKey === lastSearchResults) return;
+
+      lastSearchResults = eventKey;
+      sendAnalyticsEvent("view_search_results", {
+        search_term: searchTerm,
+        search_context: searchContext,
+        result_count: Number.isFinite(resultCount) ? resultCount : undefined,
+        filter_type: url.searchParams.get("tipo") || undefined,
+        sort_order: url.searchParams.get("ordem") || undefined,
+        purchasable_only: url.searchParams.get("compraveis") === "1" || undefined,
+      });
+    };
+
+    const sendPageViewAndSearch = () => {
+      sendPageView();
+      if (document.readyState === "loading") {
+        if (searchAfterDomReady) return;
+        searchAfterDomReady = true;
+        document.addEventListener("DOMContentLoaded", () => {
+          searchAfterDomReady = false;
+          sendSearchResults();
+        }, { once: true });
+        return;
+      }
+      sendSearchResults();
+    };
+    const schedulePageView = () => window.requestAnimationFrame(sendPageViewAndSearch);
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
@@ -44,6 +88,41 @@ function googleTagManagerBootstrap(containerId: string) {
     };
 
     window.addEventListener("popstate", schedulePageView);
+    window.addEventListener("yfm:analytics", (event) => {
+      const detail = event.detail;
+      if (!detail || typeof detail.event !== "string") return;
+      const { event: eventName, ...params } = detail;
+      sendAnalyticsEvent(eventName, params);
+    });
+    document.addEventListener("submit", (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.elements.namedItem("busca")) return;
+
+      const values = new FormData(form);
+      const searchTerm = String(values.get("busca") || "").trim();
+      if (!searchTerm) return;
+
+      sendAnalyticsEvent("search", {
+        search_term: searchTerm,
+        search_context: form.dataset.searchContext || window.location.pathname,
+        search_destination: new URL(form.action || window.location.href, window.location.href).pathname,
+        filter_type: String(values.get("tipo") || "") || undefined,
+        sort_order: String(values.get("ordem") || "") || undefined,
+        purchasable_only: values.get("compraveis") === "1" || undefined,
+      });
+    });
+    document.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target.closest("[data-analytics-event]") : null;
+      if (!target) return;
+
+      sendAnalyticsEvent(target.getAttribute("data-analytics-event") || "", {
+        content_type: target.getAttribute("data-analytics-content-type") || undefined,
+        content_id: target.getAttribute("data-analytics-content-id") || undefined,
+        placement: target.getAttribute("data-analytics-placement") || undefined,
+        link_url: target instanceof HTMLAnchorElement ? target.href : undefined,
+        link_text: target.textContent?.trim() || undefined,
+      });
+    });
     schedulePageView();
   `;
 }

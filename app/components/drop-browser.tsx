@@ -1,8 +1,9 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { CardRecord } from "../../lib/catalog";
 import type { PoolCard, PoolKey } from "../../lib/portal-content";
+import { trackDynamicSearch } from "./analytics";
 import { DropCardGrid } from "./drop-card-grid";
 
 const poolLabels: Record<PoolKey, string> = { "s-pow": "S/A POW", "s-tec": "S/A TEC", "b-c-d": "B-C-D" };
@@ -31,6 +32,17 @@ export function DropBrowser({ duelistSlug, pools, cards }: { duelistSlug: string
   const total = poolKeys.reduce((sum, key) => sum + filtered[key].length, 0);
   const hasFilters = query || type !== "todos" || pool !== "todos";
   const clear = () => { setQuery(""); setType("todos"); setPool("todos"); };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => trackDynamicSearch({
+      searchTerm: deferredQuery,
+      searchContext: "duelist_drop_browser",
+      resultCount: total,
+      filterType: type === "todos" ? undefined : type,
+      filterPool: pool === "todos" ? undefined : pool,
+    }), 700);
+    return () => window.clearTimeout(timer);
+  }, [deferredQuery, pool, total, type]);
 
   return <div className="drop-browser">
     <section className="drop-filter-section"><div className="shell">

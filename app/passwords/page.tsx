@@ -214,7 +214,7 @@ export default async function PasswordsPage({ searchParams }: { searchParams: Pr
       <div className="password-table-wrap"><table><caption>Passwords mais buscados em Yu-Gi-Oh! Forbidden Memories</caption><thead><tr><th scope="col">Carta</th><th scope="col">Password</th><th scope="col">Custo</th><th scope="col">Ficha</th></tr></thead><tbody>{popularCards.map((card) => <tr id={`password-${card.slug}`} key={card.slug}><th scope="row">{card.name}</th><td><code>{formatPassword(card.password)}</code></td><td>{card.price.toLocaleString("pt-BR")} ★</td><td><a href={`/cartas/${card.slug}/`}>Ver carta →</a></td></tr>)}</tbody></table></div>
     </section>
 
-    <section className="portal-section password-catalog-section" id="lista"><div className="shell">
+    <section className="portal-section password-catalog-section" id="lista" data-search-results-count={filtered.length} data-search-context="password_catalog"><div className="shell">
       <dl className="password-metrics password-catalog-metrics">
         <div><dt>Cartas no jogo</dt><dd>{cards.length}</dd></div>
         <div><dt>Com password</dt><dd>{passwordCards.length}</dd></div>

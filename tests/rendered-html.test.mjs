@@ -437,6 +437,9 @@ test("loads Google Tag Manager globally only when a valid GTM_ID is configured",
     assert.match(html, /id="google-tag-manager"/);
     assert.match(html, /googletagmanager\.com\/gtm\.js/);
     assert.match(html, /googletagmanager\.com\/ns\.html\?id=GTM-TEST123/);
+    assert.match(html, /view_search_results/);
+    assert.match(html, /search_term/);
+    assert.match(html, /yfm:analytics/);
   } finally {
     if (previousGtmId === undefined) delete process.env.GTM_ID;
     else process.env.GTM_ID = previousGtmId;
@@ -476,6 +479,8 @@ test("renders the WordPress mod API fields in the card-aligned detail layout", a
     assert.match(html, /id="faq"/);
     assert.match(html, /"@type":"SoftwareApplication"/);
     assert.match(html, /"@type":"FAQPage"/);
+    assert.match(html, /data-analytics-event="mod_download_click"/);
+    assert.match(html, /data-analytics-content-id="yugioh-forbidem-memories-mod-15-drop-15x"/);
   } finally {
     globalThis.fetch = originalFetch;
   }
