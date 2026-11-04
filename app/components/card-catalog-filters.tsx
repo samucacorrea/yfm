@@ -31,10 +31,10 @@ function filterHref(query: string, filterKey = "") {
   return `/cartas/${search ? `?${search}` : ""}`;
 }
 
-function FilterLink({ filter, selected, query }: { filter: CardCatalogFilter; selected: string; query: string }) {
+function FilterLink({ filter, selected, query, menu = false }: { filter: CardCatalogFilter; selected: string; query: string; menu?: boolean }) {
   const active = selected === filter.key;
   return <a
-    className={`card-filter-option${active ? " is-active" : ""}`}
+    className={`${menu ? "card-filter-menu-option" : "card-filter-option"}${active ? " is-active" : ""}`}
     href={filterHref(query, filter.key)}
     aria-current={active ? "page" : undefined}
     data-analytics-event="select_content"
@@ -48,22 +48,35 @@ function FilterLink({ filter, selected, query }: { filter: CardCatalogFilter; se
 
 export function CardCatalogFilters({ total, categories, types, selected, query }: { total: number; categories: CardCatalogFilter[]; types: CardCatalogFilter[]; selected: string; query: string }) {
   const allActive = !selected;
+  const allFilters = [...categories, ...types];
+  const quickKeys = ["categoria-magia", "categoria-armadilha", "tipo-dragao", "tipo-mago", "tipo-aqua", "tipo-guerreiro"];
+  const quickFilters = quickKeys.map((key) => allFilters.find((filter) => filter.key === key)).filter((filter): filter is CardCatalogFilter => Boolean(filter));
+  const activeFilter = allFilters.find((filter) => filter.key === selected);
+  const railFilters = activeFilter && !quickKeys.includes(activeFilter.key) ? [activeFilter, ...quickFilters] : quickFilters;
+
   return <div className="card-filter-panel">
-    <div className="card-filter-heading"><div><small>FILTRE VISUALMENTE</small><h2>Escolha uma categoria</h2></div>{selected && <a href={filterHref(query)}>Remover filtro ×</a>}</div>
-    <nav className="card-filter-groups" aria-label="Filtrar cartas por categoria ou tipo">
-      <div className="card-filter-group card-filter-special">
-        <p>Categorias</p>
-        <div className="card-filter-scroll">
-          <a className={`card-filter-option${allActive ? " is-active" : ""}`} href={filterHref(query)} aria-current={allActive ? "page" : undefined} data-analytics-event="select_content" data-analytics-content-type="card_filter" data-analytics-content-id="all_cards">
-            <span className="card-filter-icon"><FilterIcon kind="all"/></span><span><b>Todas</b><small>{total} cartas</small></span>
-          </a>
-          {categories.map((filter) => <FilterLink filter={filter} selected={selected} query={query} key={filter.key}/>)}
-        </div>
-      </div>
-      <div className="card-filter-group">
-        <p>Tipos de monstro</p>
-        <div className="card-filter-scroll">{types.map((filter) => <FilterLink filter={filter} selected={selected} query={query} key={filter.key}/>)}</div>
+    <span className="card-filter-label">Filtrar por</span>
+    <nav className="card-filter-carousel" aria-label="Filtros rápidos de cartas">
+      <div className="card-filter-scroll">
+        <a className={`card-filter-option${allActive ? " is-active" : ""}`} href={filterHref(query)} aria-current={allActive ? "page" : undefined} data-analytics-event="select_content" data-analytics-content-type="card_filter" data-analytics-content-id="all_cards">
+          <span className="card-filter-icon"><FilterIcon kind="all"/></span><span><b>Todas</b><small>{total}</small></span>
+        </a>
+        {railFilters.map((filter) => <FilterLink filter={filter} selected={selected} query={query} key={filter.key}/>)}
       </div>
     </nav>
+    <details className="card-filter-more">
+      <summary><span aria-hidden="true">＋</span> Mais tipos</summary>
+      <div className="card-filter-menu">
+        <header><div><small>CATÁLOGO DE FILTROS</small><b>Encontre seu tipo de carta</b></div>{selected && <a href={filterHref(query)}>Limpar filtro</a>}</header>
+        <div className="card-filter-menu-section">
+          <p>Categorias especiais</p>
+          <div>{categories.map((filter) => <FilterLink filter={filter} selected={selected} query={query} menu key={filter.key}/>)}</div>
+        </div>
+        <div className="card-filter-menu-section">
+          <p>Tipos de monstro</p>
+          <div>{types.map((filter) => <FilterLink filter={filter} selected={selected} query={query} menu key={filter.key}/>)}</div>
+        </div>
+      </div>
+    </details>
   </div>;
 }
