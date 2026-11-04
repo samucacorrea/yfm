@@ -1,4 +1,5 @@
-export type AnalyticsValue = string | number | boolean | undefined;
+export type AnalyticsItem = Record<string, string | number | boolean | undefined>;
+export type AnalyticsValue = string | number | boolean | undefined | AnalyticsItem[];
 
 let lastDynamicSearch = "";
 

@@ -461,6 +461,41 @@ test("loads Google Tag Manager globally only when a valid GTM_ID is configured",
   }
 });
 
+test("renders a responsive affiliate campaign without blocking the page when YFM Ads responds", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input instanceof Request ? input.url : input);
+    if (url.includes("/wp-json/yfm-ads/v1/campaign")) return Response.json({
+      id: 77,
+      campaign_id: "yfm-77",
+      campaign_name: "Controle retro",
+      advertiser: "Loja de teste",
+      placement: "passwords_inline",
+      format: "billboard",
+      destination_url: "https://example.com/produto?ref=yfm",
+      disclosure: "Link de afiliado",
+      creatives: {
+        desktop: { type: "image", url: "https://cdn.example.com/banner.webp", width: 1200, height: 300, mime_type: "image/webp", alt: "Controle retro para PlayStation" },
+        mobile: { type: "image", url: "https://cdn.example.com/banner-mobile.webp", width: 600, height: 100, mime_type: "image/webp", alt: "Controle retro para PlayStation" },
+      },
+    });
+    return originalFetch(input, init);
+  };
+
+  try {
+    const response = await render("/passwords/");
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, /data-ad-placement="passwords_inline"/);
+    assert.match(html, /data-promotion-id="yfm-77"/);
+    assert.match(html, /rel="sponsored noopener noreferrer"/);
+    assert.match(html, /srcSet="https:\/\/cdn\.example\.com\/banner-mobile\.webp"/);
+    assert.match(html, />Link de afiliado</);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("renders the WordPress mod API fields in the card-aligned detail layout", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {

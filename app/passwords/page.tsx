@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../portal.css";
 import "./passwords.css";
 import { getCards } from "../../lib/data";
 import { absoluteSiteUrl } from "../../lib/site";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { PortalPage, SchemaScript } from "../components/portal-components";
+import { AdSlot } from "../components/ad-slot";
 import { PasswordCard } from "./password-card";
 import {
   bestValueCards,
@@ -213,6 +215,8 @@ export default async function PasswordsPage({ searchParams }: { searchParams: Pr
       <header><small>CONSULTA RÁPIDA</small><p className="password-section-title" id="passwords-populares-title">Passwords mais buscados</p><p>Exodia, Blue-Eyes, Dark Magician e outras cartas procuradas com frequência.</p></header>
       <div className="password-table-wrap"><table><caption>Passwords mais buscados em Yu-Gi-Oh! Forbidden Memories</caption><thead><tr><th scope="col">Carta</th><th scope="col">Password</th><th scope="col">Custo</th><th scope="col">Ficha</th></tr></thead><tbody>{popularCards.map((card) => <tr id={`password-${card.slug}`} key={card.slug}><th scope="row">{card.name}</th><td><code>{formatPassword(card.password)}</code></td><td>{card.price.toLocaleString("pt-BR")} ★</td><td><a href={`/cartas/${card.slug}/`}>Ver carta →</a></td></tr>)}</tbody></table></div>
     </section>
+
+    <Suspense fallback={null}><AdSlot placement="passwords_inline" path="/passwords/" className="ad-slot-section--passwords" /></Suspense>
 
     <section className="portal-section password-catalog-section" id="lista" data-search-results-count={filtered.length} data-search-context="password_catalog"><div className="shell">
       <dl className="password-metrics password-catalog-metrics">
