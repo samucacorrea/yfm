@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../../exact-card.css";
 import "../mods.css";
 import { getMod } from "../../../lib/data";
 import { absoluteSiteUrl } from "../../../lib/site";
 import { SiteFooter } from "../../components/site-footer";
+import { AdSlot } from "../../components/ad-slot";
 import { SiteHeader } from "../../components/site-header";
 import { SchemaScript } from "../../components/portal-components";
 
@@ -121,6 +123,8 @@ export default async function ModPage({ params }: Props) {
           <div><small>LINK INFORMADO NO WORDPRESS</small><h2>Download do <span>mod</span></h2><p>{mod.name}</p></div>
           <a className="mod-primary-button" href={mod.sourceUrl} target="_blank" rel="noopener noreferrer" data-analytics-event="mod_download_click" data-analytics-content-type="mod" data-analytics-content-id={mod.slug} data-analytics-placement="download_section">Abrir página de download ↗</a>
         </section>}
+
+        <Suspense fallback={null}><AdSlot placement="mods_inline" path={`/mods/${mod.slug}/`} className="ad-slot-section--embedded" /></Suspense>
 
         {mod.faq.length > 0 && <section id="faq" className="faq-exact mod-faq">
           <div className="sec-h"><h2>Perguntas <span>frequentes</span></h2></div>

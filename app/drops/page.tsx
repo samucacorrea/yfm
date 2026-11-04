@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../portal.css";
 import "./drops-index.css";
 import { getCardImage } from "../../lib/card-images";
@@ -7,6 +8,7 @@ import { getCards, getDuelists } from "../../lib/data";
 import { absoluteSiteUrl } from "../../lib/site";
 import { taxonomySlug } from "../../lib/wordpress-data";
 import { CardVisual } from "../components/card-visual";
+import { AdSlot } from "../components/ad-slot";
 import { PortalHeading, PortalPage, SchemaScript } from "../components/portal-components";
 
 export const metadata: Metadata = {
@@ -137,6 +139,8 @@ export default async function DropsPage() {
         <div><dt>Relações de drop</dt><dd>{dropRelations}</dd></div>
       </dl>
     </div></section>
+
+    <Suspense fallback={null}><AdSlot placement="drops_inline" path="/drops/" /></Suspense>
 
     {featuredCards.length > 0 && <section className="portal-section drop-featured-section"><div className="shell">
       <PortalHeading eyebrow="BUSCA VISUAL" title="Cartas com drops" accent="catalogados" link="Ver todas as cartas" href="/cartas/" />

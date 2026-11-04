@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function render(path = "/", origin = "http://localhost") {
@@ -116,7 +117,7 @@ test("renders the Yu-Gi-Oh! Forbidden Memories home with its primary discovery p
   assert.match(html, /O que você/);
   assert.match(html, /Mais <span>buscados/);
   assert.match(html, /Explorar <span>mais/);
-  assert.match(html, /Espaço publicitário/);
+  assert.doesNotMatch(html, /Espaço publicitário · Fase 2/);
   assert.match(html, /Ver todos os posts/);
   assert.match(html, /class="mobile-menu"/);
   assert.match(html, /aria-label="Menu de navegação"/);
@@ -491,6 +492,44 @@ test("renders a responsive affiliate campaign without blocking the page when YFM
     assert.match(html, /rel="sponsored noopener noreferrer"/);
     assert.match(html, /srcSet="https:\/\/cdn\.example\.com\/banner-mobile\.webp"/);
     assert.match(html, />Link de afiliado</);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("renders the cards campaign after the filters and before the first card", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input instanceof Request ? input.url : input);
+    if (url.includes("/wp-json/yfm-ads/v1/campaign")) return Response.json({
+      id: 78,
+      campaign_id: "yfm-78",
+      campaign_name: "Banner do catalogo",
+      advertiser: "Loja de teste",
+      placement: "cards_inline",
+      format: "billboard",
+      destination_url: "https://example.com/cartas?ref=yfm",
+      disclosure: "Link de afiliado",
+      creatives: {
+        desktop: { type: "image", url: "https://cdn.example.com/cartas.webp", width: 1200, height: 300, mime_type: "image/webp", alt: "Produtos de Yu-Gi-Oh!" },
+      },
+    });
+    return originalFetch(input, init);
+  };
+
+  try {
+    const response = await render("/cartas/");
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    const filtersIndex = html.indexOf("card-filter-carousel");
+    const adIndex = html.indexOf('data-ad-placement="cards_inline"');
+    assert.ok(filtersIndex >= 0, "card filters are rendered");
+    assert.ok(adIndex > filtersIndex, "campaign is rendered after the card filters");
+
+    const source = await readFile(new URL("../app/cartas/page.tsx", import.meta.url), "utf8");
+    const slotIndex = source.indexOf('placement="cards_inline"');
+    const gridIndex = source.indexOf('className="catalog-grid"');
+    assert.ok(slotIndex >= 0 && gridIndex > slotIndex, "campaign slot precedes the card grid in the component tree");
   } finally {
     globalThis.fetch = originalFetch;
   }

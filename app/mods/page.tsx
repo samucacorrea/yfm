@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../exact-card.css";
 import "./mods.css";
 import { getMods } from "../../lib/data";
 import { absoluteSiteUrl } from "../../lib/site";
 import { SiteFooter } from "../components/site-footer";
+import { AdSlot } from "../components/ad-slot";
 import { SiteHeader } from "../components/site-header";
 import { SchemaScript } from "../components/portal-components";
 
@@ -50,6 +52,8 @@ export default async function ModsPage() {
           <h1>Mods de <span>Forbidden Memories</span></h1>
           <p>Explore os projetos disponíveis, confira versões, autores, alterações e acesse os links de download informados pelos responsáveis.</p>
         </header>
+
+        <Suspense fallback={null}><AdSlot placement="mods_inline" path="/mods/" className="ad-slot-section--embedded" /></Suspense>
 
         <section className="mod-catalog" aria-labelledby="mod-catalog-title">
           <div className="sec-h">

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../../portal.css";
 import "../blog-post.css";
 import { getPublishedPost, getPublishedPosts } from "../../../lib/wordpress";
 import { decodeWordPressText } from "../../../lib/wordpress-data";
 import { SITE_ORIGIN } from "../../../lib/site";
 import { PortalPage, SchemaScript } from "../../components/portal-components";
+import { AdSlot } from "../../components/ad-slot";
 import { SiteFooter } from "../../components/site-footer";
 import { SiteHeader } from "../../components/site-header";
 
@@ -182,6 +184,7 @@ export default async function BlogPost({ params }: Props) {
         <header className="blog-post-header"><div className="blog-post-badges"><span>{post.category || "BLOG"}</span>{post.tags.slice(0, 2).map((tag) => <small key={tag}>{tag}</small>)}</div><h1>{title}</h1><p>{post.plainExcerpt}</p><div className="blog-post-meta"><span className="blog-author-mark">{(post.authorName || "YFM").slice(0, 1).toUpperCase()}</span><span>Por <b>{post.authorName || "Yu-Gi-Oh! Forbidden Memories"}</b></span><time dateTime={post.date}>{new Date(post.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}</time><span>{minutes} min de leitura</span></div></header>
         {post.featuredImage && <figure className="blog-post-cover"><img src={post.featuredImage} alt={post.featuredImageAlt || title}/></figure>}
         <div className="wp-content blog-post-content" dangerouslySetInnerHTML={{ __html: article.html }}/>
+        <Suspense fallback={null}><AdSlot placement="blog_inline" path={`/blog/${post.slug}/`} className="ad-slot-section--embedded" /></Suspense>
       </article>
 
       <aside className="blog-post-right">

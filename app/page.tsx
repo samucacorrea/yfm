@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getCardImage } from "../lib/card-images";
 import { getPublishedPosts } from "../lib/wordpress";
 import { getCards, getDuelists } from "../lib/data";
 import { SITE_ORIGIN } from "../lib/site";
 import { CardVisual } from "./components/card-visual";
+import { AdSlot } from "./components/ad-slot";
 import { SchemaScript } from "./components/portal-components";
 import { SiteFooter } from "./components/site-footer";
 import { SiteHeader } from "./components/site-header";
@@ -123,7 +125,7 @@ export default async function Home() {
 
     <section className="template-section"><div className="shell"><div className="template-section-head"><h2>Explorar <span>mais</span></h2></div><div className="explore-grid">{explore.map(item=><a href={item.href} key={item.title}><i>{item.icon}</i><div><strong>{item.title}</strong><span>{item.text}</span></div></a>)}</div></div></section>
 
-    <section className="template-ad-section"><div className="shell"><aside className="template-ad"><div><b>Espaço publicitário · Fase 2 (opcional)</b><small>Slot reservado para AdSense — ativado quando a conta for aprovada.</small></div></aside></div></section>
+    <Suspense fallback={null}><AdSlot placement="home_billboard" path="/" className="ad-slot-section--home" /></Suspense>
 
     <section className="template-section"><div className="shell"><div className="template-section-head"><h2>Do <span>blog</span></h2><a href="/blog/">Ver todos os posts →</a></div><div className="template-posts">{posts.slice(0,3).map((post,index)=><a className="template-post" href={`/blog/${post.slug}/`} key={post.slug}><div className={`post-cover cover-${index+1}`}>{post.featuredImage?<img src={post.featuredImage} alt={post.featuredImageAlt||post.title.rendered} loading="lazy"/>:<b>{["𓂀","☥","✦"][index]}</b>}</div><div><h3>{post.title.rendered}</h3><span>{post.plainExcerpt}</span></div></a>)}</div></div></section>
     <section className="home-faq" id="perguntas-frequentes" aria-labelledby="home-faq-title"><div className="shell">

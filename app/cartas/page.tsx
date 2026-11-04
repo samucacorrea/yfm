@@ -27,9 +27,6 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
       .some((value) => value?.toLocaleLowerCase("pt-BR").includes(normalizedQuery));
     return matchesQuery && cardMatchesCatalogFilter(card, selectedFilter);
   });
-  const adPosition = 12;
-  const firstCards = filtered.slice(0, adPosition);
-  const remainingCards = filtered.slice(adPosition);
   const renderCard = (card: (typeof filtered)[number]) => <a className="catalog-card" href={`/cartas/${card.slug}/`} key={card.slug}><CardVisual card={card} compact /><div><small>#{String(card.id).padStart(3, "0")} · {card.attribute}</small><h2>{card.name}</h2><p>{card.namePt}</p><span>ATK <b>{card.atk}</b> DEF <b>{card.def}</b></span></div></a>;
 
   return (
@@ -43,7 +40,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
       </section>
       <section className="catalog-section" data-search-results-count={filtered.length} data-search-context="card_catalog"><div className="shell">
         <div className="catalog-meta"><p><b>{filtered.length}</b> {filtered.length === 1 ? "carta encontrada" : "cartas encontradas"}</p>{(query || selectedFilter) && <a href="/cartas/">Limpar filtros ×</a>}</div>
-        {filtered.length ? <><div className="catalog-grid">{firstCards.map(renderCard)}</div>{remainingCards.length ? <><Suspense fallback={null}><AdSlot placement="cards_inline" path="/cartas/" className="ad-slot-section--catalog"/></Suspense><div className="catalog-grid">{remainingCards.map(renderCard)}</div></> : null}</> : <div className="empty-state"><b>Nenhuma carta encontrada.</b><p>Tente buscar pelo nome em inglês, tipo ou atributo.</p></div>}
+        {filtered.length ? <><Suspense fallback={null}><AdSlot placement="cards_inline" path="/cartas/" className="ad-slot-section--catalog"/></Suspense><div className="catalog-grid">{filtered.map(renderCard)}</div></> : <div className="empty-state"><b>Nenhuma carta encontrada.</b><p>Tente buscar pelo nome em inglês, tipo ou atributo.</p></div>}
       </div></section>
       <SiteFooter />
     </main>

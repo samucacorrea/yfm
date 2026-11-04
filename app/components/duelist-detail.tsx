@@ -1,7 +1,9 @@
 import type { CardRecord } from "../../lib/catalog";
+import { Suspense } from "react";
 import type { Duelist, PoolKey } from "../../lib/portal-content";
 import { getCardImage } from "../../lib/card-images";
 import { DuelistDropCatalog } from "./duelist-drop-catalog";
+import { AdSlot } from "./ad-slot";
 import { PortalFaq, SchemaScript } from "./portal-components";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -62,6 +64,8 @@ export function DuelistDetail({ duelist, cards, activePool }: { duelist: Duelist
       <a className={!activePool ? "is-active" : ""} href={`/drops/${duelist.slug}/`}>Todas as cartas</a>
       {poolOrder.map((pool) => <a className={activePool === pool ? "is-active" : ""} href={`/drops/${duelist.slug}/${pool}/`} key={pool}>{poolLabels[pool]} <span>{duelist.pools[pool].length}</span></a>)}
     </nav>
+
+    <Suspense fallback={null}><AdSlot placement="drops_inline" path={`/drops/${duelist.slug}/${activePool ? `${activePool}/` : ""}`} /></Suspense>
 
     <section className="fm-sec fm-drop-catalog">
       <div className="shell">
