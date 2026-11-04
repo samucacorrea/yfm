@@ -122,6 +122,7 @@ function mapCard(raw: WordPressCardRaw): CardRecord {
   }));
   const name = decodeWordPressText(raw.nome);
   const type = decodeWordPressText(raw.tipo?.[0] || "Sem tipo");
+  const category = decodeWordPressText(raw.categoria?.[0] || "Normal");
   const attribute = decodeWordPressText(raw.atributo?.[0] || "Sem atributo");
 
   return {
@@ -130,6 +131,7 @@ function mapCard(raw: WordPressCardRaw): CardRecord {
     name,
     namePt: decodeWordPressText(raw.nome_pt || raw.nome),
     type,
+    category,
     attribute,
     level: numberValue(raw.nivel),
     atk: numberValue(raw.atk),

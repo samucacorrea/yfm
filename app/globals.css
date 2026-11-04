@@ -472,6 +472,65 @@ button, input, select, textarea {
   font-weight: 700;
   text-transform: uppercase;
 }
+.card-filter-panel {
+  max-width: 1060px;
+  margin-top: 34px;
+  padding: 22px;
+  border: 1px solid rgba(232, 184, 75, 0.2);
+  border-radius: 14px;
+  background: rgba(8, 8, 10, 0.72);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.2);
+}
+.card-filter-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+.card-filter-heading small,
+.card-filter-group > p {
+  color: var(--gold);
+  font-family: var(--font-heading);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.card-filter-heading h2 { margin: 2px 0 0; font-family: var(--font-heading); font-size: 24px; text-transform: uppercase; }
+.card-filter-heading > a { color: var(--gold-2); font-size: 11px; font-weight: 700; }
+.card-filter-groups { display: grid; gap: 18px; }
+.card-filter-group { min-width: 0; }
+.card-filter-group > p { margin: 0 0 9px; color: #827969; }
+.card-filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 1px 1px 9px;
+  scrollbar-color: rgba(232, 184, 75, 0.35) transparent;
+  scrollbar-width: thin;
+}
+.card-filter-option {
+  min-width: 142px;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+  color: #cfc5b3;
+  background: #121115;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.card-filter-option:hover { transform: translateY(-2px); border-color: rgba(232, 184, 75, 0.45); }
+.card-filter-option.is-active { border-color: var(--gold); color: #fff1cc; background: linear-gradient(145deg, rgba(193, 39, 45, 0.18), rgba(232, 184, 75, 0.14)); box-shadow: inset 0 0 0 1px rgba(232, 184, 75, 0.12); }
+.card-filter-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border: 1px solid rgba(232, 184, 75, 0.25); border-radius: 50%; color: var(--gold); background: #09090b; }
+.card-filter-icon svg { width: 21px; height: 21px; }
+.card-filter-option > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+.card-filter-option b { overflow: hidden; font-family: var(--font-heading); font-size: 12px; line-height: 1.2; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.card-filter-option small { margin-top: 3px; color: #847b6c; font-size: 9px; white-space: nowrap; }
+.card-filter-option.is-active small { color: #bcab88; }
 .catalog-section {
   padding: 96px 0;
   background: var(--bg-2);
@@ -1177,6 +1236,14 @@ button, input, select, textarea {
   .nav-shell { width: calc(100% - 24px); }
   .nav-shell { height: 62px; }
   .brand-logo { height: 48px; }
+  .index-hero { padding: 64px 0 44px; }
+  .index-search { width: 100%; }
+  .index-search button { padding-inline: 18px; }
+  .card-filter-panel { margin-top: 24px; padding: 16px 12px; border-radius: 11px; }
+  .card-filter-heading { align-items: flex-start; }
+  .card-filter-heading h2 { font-size: 20px; }
+  .card-filter-scroll { margin-right: -12px; padding-right: 12px; scroll-snap-type: x proximity; }
+  .card-filter-option { min-width: 132px; scroll-snap-align: start; }
   .footer-grid,
   .template-footer,
   .info-grid,

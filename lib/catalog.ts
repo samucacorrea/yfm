@@ -5,6 +5,7 @@ export type CardRecord = {
   name: string;
   namePt: string;
   type: string;
+  category?: string;
   attribute: string;
   level: number;
   atk: number;

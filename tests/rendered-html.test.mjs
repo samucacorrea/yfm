@@ -426,6 +426,21 @@ test("uses the supplied card artwork across visual card surfaces", async () => {
   ]) assert.match(html, new RegExp(`/cards/${image.replace(".", "\\.")}`));
 });
 
+test("filters the card catalog by visual monster type and special category", async () => {
+  const dragonResponse = await render("/cartas/?tipo=tipo-dragao");
+  const dragonHtml = await dragonResponse.text();
+  assert.equal(dragonResponse.status, 200);
+  assert.match(dragonHtml, /data-analytics-content-id="tipo-dragao"/);
+  assert.match(dragonHtml, /class="card-filter-option is-active"[^>]*href="\/cartas\/\?tipo=tipo-dragao"/);
+  assert.match(dragonHtml, /data-search-results-count="32"/);
+
+  const trapResponse = await render("/cartas/?tipo=categoria-armadilha");
+  const trapHtml = await trapResponse.text();
+  assert.equal(trapResponse.status, 200);
+  assert.match(trapHtml, /data-analytics-content-id="categoria-armadilha"/);
+  assert.match(trapHtml, /data-search-results-count="10"/);
+});
+
 test("loads Google Tag Manager globally only when a valid GTM_ID is configured", async () => {
   const previousGtmId = process.env.GTM_ID;
   process.env.GTM_ID = "GTM-TEST123";
